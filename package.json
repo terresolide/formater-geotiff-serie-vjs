@@ -43,8 +43,6 @@
     "css-loader": "^0.25.0",
     "exports-loader": "^0.6.4",
     "file-loader": "^0.9.0",
-    "gulp": "^3.9.1",
-    "gulp-uncss": "^1.0.6",
     "style-loader": "^0.18.2",
     "vue-loader": "^12.1.0",
     "vue-template-compiler": "^2.3.3",
