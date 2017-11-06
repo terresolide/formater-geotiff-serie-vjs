@@ -14,7 +14,7 @@
 </i18n>
 
 <template>
-	<input type="button" @click="message" :value="$t('wyn')"/>
+	<input class="skeleton" type="button" @click="message" :value="$t('wyn')"/>
 </template>
 
 
@@ -55,6 +55,9 @@ export default {
 }
 
 </script>
-<style>
 
+<style>
+.skeleton{
+   background: red;
+}
 </style>
