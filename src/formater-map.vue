@@ -23,7 +23,8 @@
 
 <script>
 var L = require("leaflet");
-L.LeafletGeotiff = require("leaflet-geotiff");
+L.LeafletGeotiff = require("leaflet-geotiff-plotty");
+
 export default {
 
   props:{
@@ -55,9 +56,9 @@ export default {
   mounted: function(){
       // initialize the map
          var container = this.$el.querySelector("#" + this.id);
-         console.log( container);
+
         // if( container){
-		 this.map = L.map( container ).setView([19.963193897, -98.467355268], 3);
+		 this.map = L.map( container ).setView([19.963193897, -98.467355268], 5);
 		
 		// this.map.on( "zoom", function(e){ this.updateAllPolygons();})
 		 L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
@@ -67,6 +68,12 @@ export default {
 		      minZoom:2
 		      
 		    }).addTo( this.map );
+		 var options = { displayMin:1, displayMax:10, clampLow:false,  clampHigh:true,colorScale:"rainbow", vector:false};
+				 
+		
+		 var renderer = L.LeafletGeotiff.plotty(options);
+		 var geotiff= L.leafletGeotiff("http://geotiff.test/geo_TOT_20150718.unw.tiff", {  opacity:1, renderer:renderer, band:0});
+		  geotiff.addTo(this.map);
         // }
   }
 }
@@ -76,6 +83,7 @@ export default {
 <style>
 .formater-map div{
    width:100%;
-   min-height:500px;
+   height:500px;
+   position:relative;
 }
 </style>
