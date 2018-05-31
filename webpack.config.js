@@ -4,7 +4,7 @@ var PACKAGE = require('./package.json');
 var buildVersion = PACKAGE.version;
 var buildName = PACKAGE.name;
 var CleanWebpackPlugin = require('clean-webpack-plugin');
-var preUrl = PACKAGE.preproduction.url + buildName + "/master/dist0/";
+var preUrl = PACKAGE.preproduction.url + buildName + "/master/webcomponents/";
 var prodUrl = PACKAGE.production.url + buildName + "/" + buildVersion + "/dist/";
 
 var pathsToClean = [
@@ -16,7 +16,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     publicPath: '/dist/',
-    filename: buildName+'_'+buildVersion+'.js'
+    filename: buildName+'.js'
   },
   module: {
     rules: [
@@ -87,8 +87,10 @@ if (process.env.NODE_ENV === 'production') {
 
 if (process.env.NODE_ENV === 'preproduction') {
     module.exports.devtool = '#source-map';
-    module.exports.output.path =  path.resolve(__dirname, './dist0'),
+    module.exports.output.path =  path.resolve(__dirname, './webcomponents'),
     module.exports.output.publicPath = preUrl;
+    module.exports.output.filename =   buildName+'_'+buildVersion+'.js'
+    
     //module.exports.output.publicPath= PACKAGE.url+ buildName +'/master/dist/';
 
     // http://vue-loader.vuejs.org/en/workflow/production.html

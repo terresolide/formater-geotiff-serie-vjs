@@ -1,7 +1,7 @@
 {
-  "name": "formater-skeleton-vjs",
+  "name": "formater-map-component-vjs",
   "version": "0.0.1",
-  "description": "Skeleton for Web component",
+  "description": "Leaflet Map component for tests",
   "preproduction": {
     "url": "https://rawgit.com/terresolide/"
   },
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terresolide/formater-skeleton-vjs.git"
+    "url": "git+https://github.com/terresolide/formater-map-component-vjs.git"
   },
   "keywords": [
     "vue.js"
@@ -24,15 +24,17 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "leaflet": "^1.3.1",
+    "leaflet-geotiff": "^0.2.0",
     "vue": "^2.3.4",
     "vue-custom-element": "^1.2.1",
     "vue-i18n": "7.0.5"
   },
   "devDependencies": {
     "@kazupon/vue-i18n-loader": "0.1.1",
-    "babel-core": "^6.0.0",
+    "babel-core": "^6.26.3",
     "babel-loader": "^6.0.0",
-    "babel-preset-env": "^1.5.1",
+    "babel-preset-env": "^1.7.0",
     "clean-webpack-plugin": "^0.1.16",
     "cross-env": "^3.0.0",
     "css-loader": "^0.25.0",
