@@ -9,8 +9,8 @@ Vue.use(vueCustomElement);
 import VueI18n from 'vue-i18n';
 Vue.use(VueI18n);
 
-//import VueResource from 'vue-resource';
-//Vue.use(VueResource);
+import VueResource from 'vue-resource';
+Vue.use(VueResource);
 
 
 

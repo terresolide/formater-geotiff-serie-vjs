@@ -22,8 +22,9 @@
 
 
 <script>
-var L = require("leaflet");
-L.LeafletGeotiff = require("leaflet-geotiff-plotty");
+var L = require("./leaflet-geotiff-plotty.js");
+//var L = require("leaflet");
+//L.LeafletGeotiff = require("leaflet-geotiff/leaflet-geotiff-plotty");
 
 export default {
 
@@ -68,11 +69,12 @@ export default {
 		      minZoom:2
 		      
 		    }).addTo( this.map );
-		 var options = { displayMin:1, displayMax:10, clampLow:false,  clampHigh:true,colorScale:"rainbow", vector:false};
+		 var options = { displayMin:1, displayMax:10, clampLow:false,  clampHigh:true};
 				 
 		
 		 var renderer = L.LeafletGeotiff.plotty(options);
-		 var geotiff= L.leafletGeotiff("http://geotiff.test/geo_TOT_20150718.unw.tiff", {  opacity:1, renderer:renderer, band:0});
+		// console.log( renderer);
+		 var geotiff= L.leafletGeotiff("http://geotiff.test/geo_TOT_20150718.unw.tiff", {   renderer:renderer, band:0});
 		  geotiff.addTo(this.map);
         // }
   }
@@ -81,7 +83,7 @@ export default {
 </script>
 
 <style>
-.formater-map div{
+.formater-map > div{
    width:100%;
    height:500px;
    position:relative;
