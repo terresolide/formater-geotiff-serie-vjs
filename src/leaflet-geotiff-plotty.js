@@ -2,7 +2,8 @@
 // https://github.com/santilland/plotty
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-	var L = require('leaflet-geotiff');
+	//@epointal change to local leaflet-geotiff
+	var L = require('./leaflet-geotiff');
 	var plotty = require('plotty');
 }
 
@@ -81,5 +82,6 @@ L.LeafletGeotiff.plotty = function (options) {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+	//@epointal exports L instead L.LeafletGeotiff!
 	module.exports = L;
 }

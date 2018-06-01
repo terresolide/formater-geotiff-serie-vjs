@@ -69,13 +69,37 @@ export default {
 		      minZoom:2
 		      
 		    }).addTo( this.map );
-		 var options = { displayMin:1, displayMax:10, clampLow:false,  clampHigh:true};
+		 var options = { displayMin:-20, displayMax:10, clampLow:false,  clampHigh:true};
 				 
 		
 		 var renderer = L.LeafletGeotiff.plotty(options);
 		// console.log( renderer);
-		 var geotiff= L.leafletGeotiff("http://geotiff.test/geo_TOT_20150718.unw.tiff", {   renderer:renderer, band:0});
+		 var geotiff= L.leafletGeotiff("http://geotiff.test/geo_TOT_20170818.unw.tiff", {   renderer:renderer, band:0, interactive:true});
 		  geotiff.addTo(this.map);
+		 
+		  var imageBounds = [[18.568748337, -99.529022784], [19.963193897, -98.467355268]];
+
+		  var imagegeo = L.imageOverlay(
+				  "http://geotiff.test/geo_TOT_20170818.unw.png",
+				  imageBounds,
+				  {
+					  crossOrigin:true,
+					  zIndex:2000, 
+					  opacity:0, 
+					  interactive:true, 
+					  bubblingMouseEvents:false,
+					  alt: " mon geotiff"
+			      });
+		  console.log( imagegeo);
+;		  imagegeo.addTo(this.map);
+				  
+		 // console.log( geotiff.options);
+		  imagegeo.on('click', function(e){
+			  //recherche de la valeur avec js
+		      console.log( e.latlng);
+			  var value = geotiff.getValueAtLatLng(e.latlng.lat,e.latlng.lng)
+			  console.log( value);
+		  })
         // }
   }
 }
