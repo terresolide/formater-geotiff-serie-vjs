@@ -15,8 +15,7 @@ Vue.use(VueResource);
 
 
 import Map from './formater-map.vue';
-
-
+import Test from './formater-test.vue';
 ljs.addAliases({
 	dep: [//'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', 
 		 //leaflet
@@ -41,6 +40,7 @@ ljs.load('dep', function() {
 	
 	
 	Vue.customElement('formater-map', Map);
+	Vue.customElement('formater-test', Test);
 	//window.registredAerisElements.push('formater-skeleton');
 	
 })
