@@ -23,18 +23,17 @@ L.LeafletGeotiff = L.ImageOverlay.extend({
     },
     
     initialize: function (url, options) { 
-        if(typeof(GeoTIFF) === 'undefined'){
+      if(typeof(GeoTIFF) === 'undefined'){
             throw new Error("GeoTIFF not defined");
-        };
+      }
         
-        this._url = url;
-        this.raster = {};
-
-        L.setOptions(this, options);
+      this._url = url
+      this.raster = {}
+      L.setOptions(this, options)
 	
-        if (this.options.bounds) {
+      if (this.options.bounds) {
             this._rasterBounds = L.latLngBounds(options.bounds);
-        }
+      }
         if (this.options.renderer) {
             this.options.renderer.setParent(this);
         }
