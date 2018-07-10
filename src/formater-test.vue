@@ -61,7 +61,7 @@ export default {
 				  var letter = 'n'
 			  	  break
 				case -2:
-				  var letter = 'micro'
+				  var letter = '&micro;'
 				  break
 				case -1:
 			  		var letter = 'm'
@@ -89,7 +89,7 @@ export default {
 		    //calcul du radical
 			var radical =  value / Math.pow(10 , 3*pow )
 			//radical = Math.round(radical * Math.pow(10, 3)) / Math.pow(10, 3)
-			return {value: value, precision: ordreGrandeur, round: max, letter: letter, pow: pow,  radical: radical.toPrecision(3)}
+			return {value: value, precision: ordreGrandeur, max: max, letter: letter, pow: pow,  radical: radical.toPrecision(3), round: value.toPrecision(3)}
 		}
 	},
 	

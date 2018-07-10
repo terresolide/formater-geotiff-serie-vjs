@@ -16,6 +16,8 @@ Vue.use(VueResource);
 
 import Map from './formater-map.vue';
 import Test from './formater-test.vue';
+import GeotiffVisualizer from '../../formater-catalogue-components-vjs/src/geotiff-visualizer.vue';
+
 ljs.addAliases({
 	dep: [//'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', 
 		 //leaflet
@@ -41,6 +43,7 @@ ljs.load('dep', function() {
 	
 	Vue.customElement('formater-map', Map);
 	Vue.customElement('formater-test', Test);
+	Vue.customElement('geotiff-control', GeotiffVisualizer);
 	//window.registredAerisElements.push('formater-skeleton');
 	
 })
