@@ -40,10 +40,10 @@ ljs.load('dep', function() {
 		window.registredAerisElements = [];
 	}*/
 	
-	
+  Vue.customElement('geotiff-visualizer', GeotiffVisualizer);
 	Vue.customElement('formater-map', Map);
 	Vue.customElement('formater-test', Test);
-	Vue.customElement('geotiff-control', GeotiffVisualizer);
+
 	//window.registredAerisElements.push('formater-skeleton');
 	
 })

@@ -16,7 +16,7 @@
 <template>
    <span class="formater-map">
 	<div :id="id"></div>
-    <geotiff-control :images="JSON.stringify(images)"></geotiff-control>
+    <geotiff-visualizer :images="JSON.stringify(images)"></geotiff-visualizer>
 	</span>
 </template>
 
