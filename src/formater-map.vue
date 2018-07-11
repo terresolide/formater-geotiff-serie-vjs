@@ -24,7 +24,7 @@
 
 <script>
 var L = require("leaflet")
-
+L.geotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
 export default {
 
   props:{
@@ -35,6 +35,10 @@ export default {
       lang: {
           type: String,
           default: 'fr'
+      },
+      metadataUrl: {
+          type: String,
+          default: 'http://api.formater/geotiff/mexico/info.json'
       }
       
   },
@@ -70,38 +74,7 @@ export default {
 		      minZoom:2
 		      
 		    }).addTo( this.map );
-// 		 var options = { displayMin:-20, displayMax:10, clampLow:false,  clampHigh:true};
-				 
-		
-// 		 var renderer = L.LeafletGeotiff.plotty(options);
-// 		// console.log( renderer);
-// 		 var geotiff= L.leafletGeotiff("http://geotiff.test/geo_TOT_20170818.unw.tiff", {   renderer:renderer, band:0, interactive:true});
-// 		  geotiff.addTo(this.map);
-		 
-// 		  var imageBounds = [[18.568748337, -99.529022784], [19.963193897, -98.467355268]];
-
-// 		  var imagegeo = L.imageOverlay(
-// 				  "http://geotiff.test/geo_TOT_20170818.unw.png",
-// 				  imageBounds,
-// 				  {
-// 					  crossOrigin:true,
-// 					  zIndex:2000, 
-// 					  opacity:0, 
-// 					  interactive:true, 
-// 					  bubblingMouseEvents:false,
-// 					  alt: " mon geotiff"
-// 			      });
-// 		  console.log( imagegeo);
-// ;		  imagegeo.addTo(this.map);
-				  
-// 		 // console.log( geotiff.options);
-// 		  imagegeo.on('click', function(e){
-// 			  //recherche de la valeur avec js
-// 		      console.log( e.latlng);
-// 			  var value = geotiff.getValueAtLatLng(e.latlng.lat,e.latlng.lng)
-// 			  console.log( value);
-// 		  })
-        // }
+		this.getInfoSerie()
   },
   methods: {
     initMap () {
@@ -119,12 +92,36 @@ export default {
 	    }).addTo( this.map );
 	  this.map.on('click', this.searchProfile);
 	
+	  this.initGeotiffSerie()
     },
-    initImage () {
-      
+    getInfoSerie () {
+      // ON VA CHERCHER LES INFORMATIONS DANS LA FICHE DE METADONNEES DE LA SERIE
+      // POUR LE MOMENT UN FICHIER INFO DANS LE DOSSIER DES FICHIERS GEOTIFFS
+      var _this = this
+      this.$http.get( this.metadataUrl).then(
+					response => { _this.initGeotiffSerie(response); },
+                    response => { _this.handleError(response);}
+	  );
     },
-    searchProfile () {
+    initGeotiffSerie (resp) {
+       console.log(resp.body.result)
+       this.images = resp.body
+       //var url = response.jsonresult
+       var url = Object.values(resp.body.result)[0].png
+       console.log(resp.body.bbox)
+       var bounds = L.latLngBounds(
+           [resp.body.bbox.north, resp.body.bbox.west], 
+           [resp.body.bbox.south, resp.body.bbox.east])
+       this.geotiffSerie = new L.GeotiffSerieLayer(url, bounds)
+	   this.geotiffSerie.addTo(this.map)
+	   this.map.fitBounds(bounds)
+    },
+    
+    getProfile (evt) {
       console.log('searchProfile');
+    },
+    handleError (response) {
+      console.log(response)
     }
   }
   
