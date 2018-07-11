@@ -22,12 +22,8 @@
 	</span>
 </template>
 
-
-
 <script>
-var L = require("leaflet");
-//var L = require("leaflet");
-//L.LeafletGeotiff = require("leaflet-geotiff/leaflet-geotiff-plotty");
+var L = require("leaflet")
 
 export default {
 
