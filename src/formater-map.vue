@@ -16,14 +16,16 @@
 <template>
    <span class="formater-map">
 	<div :id="id"></div>
-    <geotiff-visualizer :images="JSON.stringify(images)"></geotiff-visualizer>
+	<div class="geotiff-control">
+     <geotiff-visualizer :images="JSON.stringify(images)" :lang="lang"></geotiff-visualizer>
+    </div>
 	</span>
 </template>
 
 
 
 <script>
-var L = require("./leaflet-geotiff-plotty.js");
+var L = require("leaflet");
 //var L = require("leaflet");
 //L.LeafletGeotiff = require("leaflet-geotiff/leaflet-geotiff-plotty");
 
@@ -52,10 +54,12 @@ export default {
 		
 	},
 	
-  created: function(){
-      this.$i18n.locale = this.lang;
+  created () {
+    this.$i18n.locale = this.lang
   },
-  mounted: function(){
+  mounted () {
+    this.$i18n.locale = this.lang
+    console.log(this)
       // initialize the map
          var container = this.$el.querySelector("#" + this.id);
 
