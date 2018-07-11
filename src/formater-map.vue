@@ -17,7 +17,7 @@
    <span class="formater-map">
 	<div :id="id"></div>
 	<div class="geotiff-control">
-     <geotiff-visualizer :images="JSON.stringify(images)" :lang="lang"></geotiff-visualizer>
+     <geotiff-serie-control :images="JSON.stringify(images)" :lang="lang"></geotiff-serie-control>
     </div>
 	</span>
 </template>
@@ -40,7 +40,6 @@ export default {
           type: String,
           default: 'http://api.formater/geotiff/mexico/info.json'
       }
-      
   },
   data () {
 		return {

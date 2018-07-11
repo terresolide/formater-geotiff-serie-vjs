@@ -1,13 +1,11 @@
-# formater-map-component-vjs
+# formater-geotiff-series-vjs
 
 
-A component with map to test others components, or module, essentially for geotiff files.
+A component to display geotiff series with their thumbnail, 
+Create temporal profile in a location
 
 
-## Use to test requests to server geotiff.test
- the request has 3 parameters:
- * filename
- * lat
- * lng
- and return the value in this file for this value
+## Need
+ * a json file like in example
+ * an api rest for profile
  

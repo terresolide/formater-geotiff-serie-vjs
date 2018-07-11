@@ -17,7 +17,7 @@ import Map from './formater-map.vue';
 
 //@todo factoriser -  Il s'agit du même composant (une copie) que dans formater-catalogue-component-vjs 
 // problème quand je charge l'originale dans un autre répertoire avec i18n???
-import GeotiffVisualizer from './geotiff-visualizer.vue';
+import GeotiffSerieControl from './geotiff-serie-control.vue';
 
 ljs.addAliases({
 	dep: [
@@ -33,7 +33,7 @@ ljs.addAliases({
 	  ]
 })
 ljs.load('dep', function() {
-  Vue.customElement('geotiff-visualizer', GeotiffVisualizer);
+  Vue.customElement('geotiff-serie-control', GeotiffSerieControl);
   Vue.customElement('formater-map', Map);
 	// Vue.customElement('formater-test', Test);
 })
