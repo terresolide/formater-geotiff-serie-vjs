@@ -1,11 +1,11 @@
-# formater-geotiff-series-vjs
+# formater-geotiff-serie-vjs
 
 
-A component to display geotiff series with their thumbnail, 
+A component to display geotiff serie using their thumbnail, 
 Create temporal profile in a location
 
 
 ## Need
- * a json file like in example
- * an api rest for profile
+ * a json file like file joined in example
+ * an api rest to create profile
  

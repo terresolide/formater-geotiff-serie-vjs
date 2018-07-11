@@ -30,12 +30,12 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     this.on( "dblclick", function( evt){
       this.removeEventParent(evt);
     });
-    L.DomEvent.on(document, 'selectedImage', this._selectImage, this)
-    L.DomEvent.on(document, 'showImage', this._showImage, this)
+    L.DomEvent.on(document, 'selectImageSerieEvent', this._selectImage, this)
+    L.DomEvent.on(document, 'toggleImageSerieEvent', this._showImage, this)
   },
   removeListeners () {
-    L.DomEvent.off(document, 'selectedImage', this._selectImage, this)
-    L.DomEvent.off(document, 'showImage', this._showImage, this)
+    L.DomEvent.off(document, 'selectImageSerieEvent', this._selectImage, this)
+    L.DomEvent.off(document, 'toggleImageSerieEvent', this._showImage, this)
   },
   _selectImage: function(evt) {
     console.log(evt.detail.img)
