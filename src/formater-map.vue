@@ -24,7 +24,8 @@
 
 <script>
 var L = require("leaflet")
-L.geotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
+L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
+L.Control.ResetControl = require("./leaflet.reset-control.js")
 export default {
 
   props:{
@@ -50,7 +51,7 @@ export default {
         }
   },
   created () {
-    this.$i18n.locale = this.lang
+    // this.$i18n.locale = this.lang
   },
   mounted () {
     this.$i18n.locale = this.lang
@@ -71,6 +72,7 @@ export default {
           minZoom:2
           
         }).addTo( this.map );
+      
       this.map.on('click', this.searchProfile);
     
     },
@@ -89,6 +91,8 @@ export default {
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
        this.map.fitBounds(this.bounds)
+       var reset = new L.Control.ResetControl(this.bounds)
+       this.map.addControl(reset)
        this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
        this.geotiffSerie.addTo(this.map)
        
@@ -133,5 +137,11 @@ export default {
    width:100%;
    height:500px;
    position:relative;
+}
+.leaflet-reset{
+   font-size: 25px;
+   background: rgba(255, 255, 255, 0.8);
+   padding: 3px 4px 3px 2px;
+   cursor: pointer;
 }
 </style>

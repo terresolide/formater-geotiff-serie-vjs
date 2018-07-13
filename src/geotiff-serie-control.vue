@@ -295,9 +295,7 @@ export default {
   },
   reset () {
     this.playing = false
-    this.selected = this.first
-    var event = new CustomEvent('resetGeotiffViewEvent')
-    document.dispatchEvent(event)
+    this.goTo(this.first)
   },
   handleReset: function( ) {
     console.log( "handle reset from stop visualisation");

@@ -48,7 +48,6 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     this._map.fitBounds(this._bounds)
   },
   _selectImage: function(evt) {
-    console.log(evt.detail.img)
     this.setUrl(evt.detail.img);
     var node = this.getElement();
     node.setAttribute( 'title', evt.detail.date);
