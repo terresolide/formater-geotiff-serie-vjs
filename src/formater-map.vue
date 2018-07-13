@@ -17,7 +17,7 @@
    <span class="formater-map">
     <div :id="id"></div>
     <div class="geotiff-control">
-     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true"></geotiff-serie-control>
+     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" resetbutton="true"></geotiff-serie-control>
     </div>
     </span>
 </template>

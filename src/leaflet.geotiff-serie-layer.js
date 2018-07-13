@@ -14,6 +14,7 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     interactive:true, 
     bubblingMouseEvents:false,
   },
+  resetGeotiffViewListener: null,
   initialize (bounds, options) {
     var url = 'https://api.poleterresolide.fr/images/transparent.png'
     L.ImageOverlay.prototype.initialize.call(this, url, bounds, options);
@@ -36,10 +37,15 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     });
     L.DomEvent.on(document, 'selectImageSerieEvent', this._selectImage, this)
     L.DomEvent.on(document, 'toggleImageSerieEvent', this._showImage, this)
+    L.DomEvent.on(document, 'resetGeotiffViewEvent', this._resetView, this)
   },
   removeListeners () {
     L.DomEvent.off(document, 'selectImageSerieEvent', this._selectImage, this)
     L.DomEvent.off(document, 'toggleImageSerieEvent', this._showImage, this)
+    L.DomEvent.off(document, 'resetGeotiffViewEvent', this._resetView, this)
+  },
+  _resetView: function (evt) {
+    this._map.fitBounds(this._bounds)
   },
   _selectImage: function(evt) {
     console.log(evt.detail.img)

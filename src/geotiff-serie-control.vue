@@ -1,5 +1,6 @@
 <!-- IL S'AGIT DE GEOTIFF-VISUALIZER RENOMMER
-CONTROL GEOTIFF-LAYER -->
+CONTROL GEOTIFF-LAYER 
+ORIGINAL - LA COPIE EST DANS formater-catalogue-component-vjs-->
 <i18n>
 {
   "en":{
@@ -22,6 +23,7 @@ CONTROL GEOTIFF-LAYER -->
     <progress  v-show="selected!=null" :min="0" :max="last" :value="selected" @mousemove="dateFromPosition" @mouseout="hideTooltip" @click="selectFromProgress">truc</progress>
     <div v-show="!isMinScreen" class="geotiff-eye">
       <a @click="view()" class="geotiff-nav geotiff-play"  ><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
+      <a  v-if="resetbutton" v-show="selected!=null" @click="reset()" class="geotiff-nav geotiff-play"  ><i class="fa fa-undo"></i></a>
     </div>
 
     <div v-show="selected!=null" style="display:inline-block;min-width:300px;">
@@ -44,7 +46,10 @@ CONTROL GEOTIFF-LAYER -->
 
  
     <div class="geotiff-eye" :class="isMinScreen?'little-control':''" >
-      <a @click="view()" v-show="isMinScreen"  class="geotiff-nav geotiff-play"><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
+      <span v-show="isMinScreen">
+        <a @click="view()"  class="geotiff-nav geotiff-play"><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
+        <a  v-if="resetbutton" v-show="selected!=null" @click="reset()" class="geotiff-nav geotiff-play"  ><i class="fa fa-undo"></i></a>
+	  </span>
 	  <div  class="geotiff-file" v-for="(item, key) in list" :data-image="item.png" v-show="keys[selected]==key" >
 	    <a :href="item.tiff" title="Download Geotiff" download class="fa fa-download"> {{ date2str(item.date) }}</a>
 	  </div>
@@ -65,6 +70,10 @@ export default {
         default: null
      },
      showatstart: {
+       type: Boolean,
+       default: false
+     },
+     resetbutton: {
        type: Boolean,
        default: false
      }
@@ -269,16 +278,26 @@ export default {
   },
   selectFromProgress (evt) {
     var index = this.indexFromPosition(evt)
-    this.selected = index
+    this.goTo(index)
   },
   dateFromPosition (evt) {
     var index = this.indexFromPosition(evt)
     var date = this.index2strdate(index)
-    this.dateInTooltip = date
-    
+    console.log(date)
+    if (!date) {
+      this.$el.querySelector('.geotiff-date-tooltip').style.opacity = 0;
+    } else {
+      this.dateInTooltip = date
+    }
   },
   hideTooltip () {
     this.$el.querySelector('.geotiff-date-tooltip').style.opacity = 0;
+  },
+  reset () {
+    this.playing = false
+    this.selected = this.first
+    var event = new CustomEvent('resetGeotiffViewEvent')
+    document.dispatchEvent(event)
   },
   handleReset: function( ) {
     console.log( "handle reset from stop visualisation");
