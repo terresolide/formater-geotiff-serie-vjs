@@ -220,6 +220,9 @@ export default {
     }
     var evt = new CustomEvent("toggleImageSerieEvent", {detail: { show: this.hidden}});
     document.dispatchEvent(evt);
+    if (this.hidden && !this.selected) {
+      this.goTo(this.first)
+    }
     this.hidden = !this.hidden;
     if(this.hidden){
      this.playing = false;
@@ -273,10 +276,14 @@ export default {
   indexFromPosition (evt) {
     var node = this.$el.querySelector('progress')
     var nodePos = node.getBoundingClientRect()
+    //cursor position
     var posX = evt.clientX - nodePos.left
     this.$el.querySelector('.geotiff-date-tooltip').style.opacity = 1;
     if(this.last){
-      this.$el.querySelector('.geotiff-date-tooltip').style.left = (evt.clientX - 50) + "px"
+      //geotiff-serie-control posistion
+      var posG = this.$el.getBoundingClientRect()
+      //tooltip position
+      this.$el.querySelector('.geotiff-date-tooltip').style.left = (nodePos.left - posG.left + posX - 50) + "px"
       return Math.round(this.last * posX / nodePos.width)
     }else{
       return null
@@ -354,6 +361,7 @@ export default {
   font-size:14px;
   color:white;
   border-radius:5px;
+  opacity:0;
   z-index:2000;
   background: rgba(0, 0, 0, 0.8);
 }

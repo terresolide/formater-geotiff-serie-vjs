@@ -150,19 +150,6 @@ export default {
          this.isFullscreen = !this.isFullscreen
 	      this.map.invalidateSize()
     },
-    initGeotiffSerie (evt) {
-       this.geotiffSerie = new L.GeotiffSerieLayer(evt.detail.img, this.bounds) 
-       this.geotiffSerie.addTo(this.map)   
-       var event = new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-       });
-       console.log(this.$refs.geotiffControl.querySelector("#geotiffEye"))
-       this.$refs.geotiffControl.querySelector("#geotiffEye").dispatchEvent(event)
-       console.log(this.$refs.geotiffControl)
-       // trigger show in geotiff control 
-    },
     
     getProfile (evt) {
       console.log('searchProfile');
