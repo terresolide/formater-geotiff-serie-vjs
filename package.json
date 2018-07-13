@@ -1,7 +1,7 @@
 {
-  "name": "formater-map-component-vjs",
+  "name": "formater-geotiff-serie-vjs",
   "version": "0.0.1",
-  "description": "Leaflet Map component for tests",
+  "description": "Display geotiff serie on leaflet map using their png thumbnail",
   "preproduction": {
     "url": "https://rawgit.com/terresolide/"
   },
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/terresolide/formater-map-component-vjs.git"
+    "url": "git+https://github.com/terresolide/formater-geotiff-serie-vjs.git"
   },
   "keywords": [
     "vue.js"

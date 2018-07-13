@@ -9,12 +9,12 @@
   <div>Here used the javascript file build with the command : <code>npm run pre</code><br />
   then push to github repository in branch master</div>
 	<!-- My component -->
-	<formater-skeleton lang="en"></formater-skeleton>
-	<formater-skeleton name="Elisabeth" lang="fr"></formater-skeleton>
-	
+	<div style="width:80%;margin:auto;height:600px;">
+	  <formater-map id="test" metadataurl="https://api.poleterresolide.fr/geotiff/mexico/info_ft.json"></formater-map> 
+	 </div>
     <!-- The file is generated when we laucnch in console: npm run pre
          then push on github branch master
      Modify the url according to your own configuration -->
-	 <script src="https://rawgit.com/terresolide/formater-skeleton-vjs/master/dist0/formater-skeleton-vjs_0.0.1.js"></script> 
+	 <script src="https://api.poleterresolide.fr/webcomponents/formater-geotiff-serie-vjs_0.0.1.js"></script> 
   </body>
 </html>
