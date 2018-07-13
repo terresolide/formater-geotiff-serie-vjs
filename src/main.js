@@ -21,7 +21,8 @@ import GeotiffSerieControl from './geotiff-serie-control.vue';
 
 ljs.addAliases({
 	dep: [
-	  'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', 
+	   'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', 
+	  //'https://use.fontawesome.com/releases/v5.1.0/css/all.css',
 		 //leaflet
 		//------------
 		'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.css',

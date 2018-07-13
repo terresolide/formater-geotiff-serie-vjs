@@ -14,15 +14,16 @@
 </i18n>
 
 <template>
-   <span class="formater-map">
+   <span class="formater-map">   
     <div :id="id"></div>
     <div class="geotiff-control">
-     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" resetbutton="true"></geotiff-serie-control>
+     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" fullscreenbutton="true" @fullscreen="handleFullscreen"></geotiff-serie-control>
     </div>
     </span>
 </template>
 
 <script>
+
 var L = require("leaflet")
 L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
 L.Control.ResetControl = require("./leaflet.reset-control.js")
@@ -47,7 +48,10 @@ export default {
               pseudo: 'Truc',
               map: null,
               images:[],
-              bounds: null
+              bounds: null,
+              isFullscreen: false,
+              fullscreenNode: null,
+              parentNode: null
         }
   },
   created () {
@@ -55,8 +59,14 @@ export default {
   },
   mounted () {
     this.$i18n.locale = this.lang
+    this.initFullscreen()
     this.initMap()
     this.getInfoSerie()
+  
+    // this.initListeners()
+  },
+  destroyed () {
+    this.destroyFullscreen()
   },
   methods: {
     initMap () {
@@ -75,6 +85,20 @@ export default {
       
       this.map.on('click', this.searchProfile);
     
+    },
+    initFullscreen () {
+      var div = document.createElement('div')
+      div.className = 'formater-fullscreen'
+      this.fullscreenNode = div
+      document.body.append(this.fullscreenNode)
+      this.parentNode = this.$el.parentNode.parentNode
+      
+      this.parentNode.style.height = this.parentNode.offsetHeight + 'px'
+      console.log(this.parentNode.style.height)
+    },
+    destroyFullscreen () {
+      this.fullscreenNode.remove()
+      this.fullscreenNode = null
     },
     getInfoSerie () {
       // ON VA CHERCHER LES INFORMATIONS DANS LA FICHE DE METADONNEES DE LA SERIE
@@ -108,6 +132,24 @@ export default {
     handleError (response) {
       console.log(response)
     },
+    handleFullscreen (evt) {
+      if (this.isFullscreen) {
+        this.parentNode.append(this.$el.parentNode)
+        var height = this.parentNode.offsetHeight
+	      console.log(height)
+	      this.$el.querySelector('#' +this.id).style.height = (height - this.$refs.geotiffControl.offsetHeight) + 'px'
+	      this.fullscreenNode.style.pointerEvents = 'none'
+      }else{
+	      console.log(evt)
+	      this.fullscreenNode.append(this.$el.parentNode)
+	      var height = window.innerHeight || document.documentElement.clientHeight
+	      console.log(height)
+	      this.$el.querySelector('#' +this.id).style.height = (height - this.$refs.geotiffControl.offsetHeight) + 'px'
+	      this.fullscreenNode.style.pointerEvents = 'auto'
+      }
+         this.isFullscreen = !this.isFullscreen
+	      this.map.invalidateSize()
+    },
     initGeotiffSerie (evt) {
        this.geotiffSerie = new L.GeotiffSerieLayer(evt.detail.img, this.bounds) 
        this.geotiffSerie.addTo(this.map)   
@@ -133,15 +175,36 @@ export default {
 </script>
 
 <style>
+html,body{
+	margin:0;
+	padding:0;
+	overflow-x: hidden;
+}
+.formater-fullscreen{
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100vh;
+  pointer-events:none;
+}
+.formater-map{
+  position:relative;
+  margin:0;
+  padding:0;
+}
+.formater-map.fullscreen{
+	position:absolute;
+	top:0;
+	height:100vh;
+	width:100%;
+}
 .formater-map > div{
    width:100%;
    height:500px;
    position:relative;
 }
 .leaflet-reset{
-   font-size: 25px;
-   background: rgba(255, 255, 255, 0.8);
-   padding: 3px 4px 3px 2px;
-   cursor: pointer;
+   font-size: 22px;
 }
 </style>
