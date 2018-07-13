@@ -17,7 +17,7 @@
    <span class="formater-map">   
     <div :id="id"></div>
     <div class="geotiff-control">
-     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" fullscreenbutton="true" @fullscreen="handleFullscreen"></geotiff-serie-control>
+     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" fullscreenbutton="true" @fullscreen="handleFullscreen" @resize="resize"></geotiff-serie-control>
     </div>
     </span>
 </template>
@@ -62,7 +62,6 @@ export default {
     this.initFullscreen()
     this.initMap()
     this.getInfoSerie()
-  
     // this.initListeners()
   },
   destroyed () {
@@ -96,6 +95,21 @@ export default {
       this.parentNode.style.height = this.parentNode.offsetHeight + 'px'
       console.log(this.parentNode.style.height)
     },
+    resize () {
+      if (!this.$el || !this.$el.parentNode) {
+        return
+      }
+     var parentPos = this.$el.parentNode.parentNode.getBoundingClientRect()
+     var geotiffControlPos = this.$el.querySelector('.geotiff-control').getBoundingClientRect()
+     console.log(parentPos.height)
+     console.log(geotiffControlPos.height)
+     console.log(this.$el.querySelector('.geotiff-control'))
+     this.$el.querySelector('#' + this.id).style.height = (parentPos.height - geotiffControlPos.height) + 'px'
+     if (this.map) {
+       this.map.invalidateSize()
+     }
+     
+    },
     destroyFullscreen () {
       this.fullscreenNode.remove()
       this.fullscreenNode = null
@@ -114,18 +128,14 @@ export default {
            [resp.body.bbox.north, resp.body.bbox.west], 
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
-       this.map.fitBounds(this.bounds)
+     
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
        this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
        this.geotiffSerie.addTo(this.map)
-       
-       var event = new MouseEvent('click', {
-        'view': window,
-        'bubbles': true,
-        'cancelable': true
-       });
-       console.log(this.$refs.geotiffControl.querySelector("#geotiffEye"))
+       this.resize()
+       //fitBounds after adding geotiffSerie else chrome do not zoom properly
+       this.map.fitBounds(this.bounds)
        // this.$refs.geotiffControl.querySelector("#geotiffEye").dispatchEvent(event)
    	  
     },
@@ -133,18 +143,22 @@ export default {
       console.log(response)
     },
     handleFullscreen (evt) {
+      console.log(this.$refs.geotiffControl.offsetHeight)
+      var nodePos = this.$el.querySelector('.geotiff-control').getBoundingClientRect()
+      console.log(nodePos)
       if (this.isFullscreen) {
         this.parentNode.append(this.$el.parentNode)
         var height = this.parentNode.offsetHeight
 	      console.log(height)
-	      this.$el.querySelector('#' +this.id).style.height = (height - this.$refs.geotiffControl.offsetHeight) + 'px'
+	     
+	      this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
 	      this.fullscreenNode.style.pointerEvents = 'none'
       }else{
 	      console.log(evt)
 	      this.fullscreenNode.append(this.$el.parentNode)
 	      var height = window.innerHeight || document.documentElement.clientHeight
 	      console.log(height)
-	      this.$el.querySelector('#' +this.id).style.height = (height - this.$refs.geotiffControl.offsetHeight) + 'px'
+	      this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
 	      this.fullscreenNode.style.pointerEvents = 'auto'
       }
          this.isFullscreen = !this.isFullscreen
@@ -180,6 +194,9 @@ html,body{
   margin:0;
   padding:0;
 }
+.formater-map .geotiff-control{
+	min-height:47px;
+}
 .formater-map.fullscreen{
 	position:absolute;
 	top:0;
@@ -188,7 +205,6 @@ html,body{
 }
 .formater-map > div{
    width:100%;
-   height:500px;
    position:relative;
 }
 .leaflet-reset{

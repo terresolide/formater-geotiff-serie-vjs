@@ -128,6 +128,11 @@ export default {
         if(this.showatstart){
           this.view()
         }
+      },
+      selected (val, old) {
+        if(old == null) {
+          this.resize()
+        }
       }
     },
    destroyed: function() {
@@ -187,32 +192,37 @@ export default {
     }else{
       this.isMinScreen = false
     }
+    this.$emit('resize')
   },
   next (auto) {
     if(!auto){
-   this.playing = false;
+      this.playing = false;
     }
     this.selected += 1;
-    if( this.selected < this.keys.length){
-   this.triggerImageDisplay( this.keys[this.selected]);
+    if (this.selected < this.keys.length) {
+      this.triggerImageDisplay(this.keys[this.selected]);
     }else{
-   console.log(this.keys)
-   this.selected = null;
+     console.log(this.keys)
+     this.selected = null;
     }
   },
   previous () {
     this.playing = false;
     this.selected -=1;
     if( this.selected < 0 ){
-   this.selected = null;
+      this.selected = null;
     }else{
-   this.triggerImageDisplay( this.keys[this.selected]);
+      this.triggerImageDisplay( this.keys[this.selected]);
     }
   },
   goTo (index) {
     this.playing = false;
+    var begin = index === this.first ? true : false
     this.selected = index;
     this.triggerImageDisplay( this.keys[index]);
+	if(begin) {
+	  this.resize()
+	}
   },
   view () {
     if (!this.hasBegin) {
@@ -247,15 +257,15 @@ export default {
   },
   play(){
     if (!this.playing) {
-    return;
+      return;
     }
     if (this.selected != null && this.selected < this.keys.length-1) {
-    var _this = this;
-    this.next(true);
-    var next = function(){
-      _this.play();
-    }
-    setTimeout(next, 1000);
+      var _this = this;
+      this.next(true);
+      var next = function(){
+        _this.play();
+      }
+      setTimeout(next, 1000);
    }else{
      this.playing = false;
    }
@@ -296,7 +306,6 @@ export default {
   dateFromPosition (evt) {
     var index = this.indexFromPosition(evt)
     var date = this.index2strdate(index)
-    console.log(date)
     if (!date) {
       this.$el.querySelector('.geotiff-date-tooltip').style.opacity = 0;
     } else {
