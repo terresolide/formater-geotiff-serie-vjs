@@ -38,7 +38,7 @@ export default {
           type: String,
           default: 'fr'
       },
-      metadataUrl: {
+      metadataurl: {
           type: String,
           default: 'http://api.formater/geotiff/mexico/info.json'
       }
@@ -118,7 +118,7 @@ export default {
       // ON VA CHERCHER LES INFORMATIONS DANS LA FICHE DE METADONNEES DE LA SERIE
       // POUR LE MOMENT UN FICHIER INFO DANS LE DOSSIER DES FICHIERS GEOTIFFS
       var _this = this
-      this.$http.get( this.metadataUrl).then(
+      this.$http.get( this.metadataurl).then(
                     response => { _this.handleSuccess(response); },
                     response => { _this.handleError(response);}
       );
