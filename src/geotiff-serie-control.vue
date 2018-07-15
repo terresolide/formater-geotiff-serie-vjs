@@ -17,7 +17,7 @@ ORIGINAL - LA COPIE EST DANS formater-catalogue-component-vjs-->
 </i18n>
 <template>
 <span class="geotiff-serie-control" >
- <span class="geotiff-date-tooltip" @mouseout="hideTooltip">{{dateInTooltip}}</span>
+ <span class="geotiff-date-tooltip">{{dateInTooltip}}</span>
  <div>
   <div>
     <progress  v-show="selected!=null" :min="0" :max="last" :value="selected" @mousemove="dateFromPosition" @mouseout="hideTooltip" @click="selectFromProgress">truc</progress>
@@ -366,13 +366,14 @@ export default {
   padding:4px 3px;
   position:absolute;
   left:0;
-  top:-20px;
+  top:-25px;
   font-size:14px;
   color:white;
   border-radius:5px;
   opacity:0;
   z-index:2000;
   background: rgba(0, 0, 0, 0.8);
+  pointer-events: auto;
 }
 .geotiff-serie-control > div > div{
   text-align:center;
