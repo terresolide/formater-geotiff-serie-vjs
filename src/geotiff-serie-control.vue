@@ -363,11 +363,11 @@ export default {
 }
 .geotiff-date-tooltip{
   display:block;
-  padding:4px 3px;
+  padding:3px 4px;
   position:absolute;
   left:0;
-  top:-25px;
-  font-size:14px;
+  top:-20px;
+  font-size:12px;
   color:white;
   border-radius:5px;
   opacity:0;
