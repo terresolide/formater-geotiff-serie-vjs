@@ -27,6 +27,7 @@
 var L = require("leaflet")
 L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
 L.Control.ResetControl = require("./leaflet.reset-control.js")
+L.Control.ColorscaleControl = require("./leaflet.colorscale-control.js")
 export default {
 
   props:{
@@ -51,7 +52,8 @@ export default {
               bounds: null,
               isFullscreen: false,
               fullscreenNode: null,
-              parentNode: null
+              parentNode: null,
+              portrayal: null
         }
   },
   created () {
@@ -128,16 +130,18 @@ export default {
            [resp.body.bbox.north, resp.body.bbox.west], 
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
-     
+       this.portrayal = resp.body.portrayal
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
        this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
        this.geotiffSerie.addTo(this.map)
+       this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
+       this.colorscale.addTo(this.map)
        this.resize()
        //fitBounds after adding geotiffSerie else chrome do not zoom properly
        this.map.fitBounds(this.bounds)
        // this.$refs.geotiffControl.querySelector("#geotiffEye").dispatchEvent(event)
-   	  
+         
     },
     handleError (response) {
       console.log(response)
@@ -149,20 +153,18 @@ export default {
       if (this.isFullscreen) {
         this.parentNode.append(this.$el.parentNode)
         var height = this.parentNode.offsetHeight
-	      console.log(height)
-	     
-	      this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
-	      this.fullscreenNode.style.pointerEvents = 'none'
+        this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
+        this.fullscreenNode.style.pointerEvents = 'none'
       }else{
-	      console.log(evt)
-	      this.fullscreenNode.append(this.$el.parentNode)
-	      var height = window.innerHeight || document.documentElement.clientHeight
-	      console.log(height)
-	      this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
-	      this.fullscreenNode.style.pointerEvents = 'auto'
+        console.log(evt)
+        this.fullscreenNode.append(this.$el.parentNode)
+        var height = window.innerHeight || document.documentElement.clientHeight
+        console.log(height)
+        this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
+        this.fullscreenNode.style.pointerEvents = 'auto'
       }
-         this.isFullscreen = !this.isFullscreen
-	      this.map.invalidateSize()
+      this.isFullscreen = !this.isFullscreen
+      this.map.invalidateSize()
     },
     
     getProfile (evt) {
@@ -177,9 +179,9 @@ export default {
 
 <style>
 html,body{
-	margin:0;
-	padding:0;
-	overflow-x: hidden;
+  margin:0;
+  padding:0;
+  overflow-x: hidden;
 }
 .formater-fullscreen{
   position: fixed;
@@ -195,19 +197,41 @@ html,body{
   padding:0;
 }
 .formater-map .geotiff-control{
-	min-height:47px;
+  min-height:47px;
 }
 .formater-map.fullscreen{
-	position:absolute;
-	top:0;
-	height:100vh;
-	width:100%;
+  position:absolute;
+  top:0;
+  height:100vh;
+  width:100%;
 }
 .formater-map > div{
-   width:100%;
-   position:relative;
+  width:100%;
+  position:relative;
 }
 .leaflet-reset{
-   font-size: 22px;
+  font-size: 22px;
+}
+.leaflet-bar.leaflet-colorscale {
+  border:none;
+}
+.leaflet-colorscale-tooltip{
+  display:block;
+  padding:4px 3px;
+  position:absolute;
+  left:0;
+  top:-25px;
+  font-size:14px;
+  color:white;
+  border-radius:5px;
+  opacity:0;
+  z-index:2000;
+  background: rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  
+}
+.leaflet-colorscale canvas{
+	width:100px;
+	height:20px;
 }
 </style>
