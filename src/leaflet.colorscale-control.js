@@ -19,8 +19,15 @@ L.Control.ColorscaleControl = L.Control.extend({
     _displayMax: 1,
     _canvas: null,
     _tooltip: null,
-    initialize: function (portrayal) {
-      this.setPortrayal(portrayal)
+    initialize: function (portrayal, options) {
+      if (portrayal) {
+        this.setPortrayal(portrayal)
+      }
+      if (!options){
+        options = {}
+      }
+      L.Util.setOptions(this, options);
+      L.Control.prototype.initialize.call(options);
     },
     setPortrayal: function (portrayal) {
       this._colorscale = portrayal.colorscale
@@ -69,12 +76,9 @@ L.Control.ColorscaleControl = L.Control.extend({
       return container
     },
     _displayTooltip: function (evt) {
-      console.log(evt)
       this._tooltip.innerHTML = 'machin'
       this._tooltip.style.opacity = 0.9
       var pos = this._canvas.getBoundingClientRect()
-      console.log(pos)
-      console.log(evt.clientX - pos.left)
       var posX = evt.clientX - pos.left
       this._tooltip.style.left = (posX - 20) + "px"
       var value = posX * (this._displayMax - this._displayMin) / pos.width + this._displayMin

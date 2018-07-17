@@ -1,9 +1,14 @@
 /**
  *  Geotiff serie layer is an interactive ImageOverlay
- *  listen to : selectedImage Event => change url image
- *  listen to : toggleImage Event (actual showImage ) => show/hide overlay
- *  trigger : nextImageEvent when receive click
- *  link to geotiff-serie-control (actual geotiff-visualizer)
+ *  @parameter bounds a latlng bounds
+ *  @parameter 
+ *  @listen    selectImageSerieEvent => change url image
+ *  @listen    toggleImageSerieEvent => show/hide overlay
+ *  @listen    resetGeotiffViewEvent
+ *  @listen    modeChangeEvent (mode pass from video to profile)
+ *  @trigger   searchProfileEvent 
+ *  @trigger   nextImageEvent
+ *  @requires   leaflet
  */
 
 L.GeotiffSerieLayer = L.ImageOverlay.extend({
@@ -15,8 +20,14 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     bubblingMouseEvents:false,
   },
   resetGeotiffViewListener: null,
+  modeChangeListener: null,
+  mode: 'video',
   initialize (bounds, options) {
     var url = 'https://api.poleterresolide.fr/images/transparent.png'
+    if (!options){
+        options = {}
+    }
+    L.Util.setOptions(this, options);
     L.ImageOverlay.prototype.initialize.call(this, url, bounds, options);
   },
   onAdd (map) {
@@ -28,21 +39,37 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     L.ImageOverlay.prototype.onRemove.call(this);
   },
   initHandler () {
-    this.on( 'click', function( evt){
-      var event = new CustomEvent( 'nextImageEvent');
-      document.dispatchEvent( event);
+    this.on( 'click', function(evt){
+      switch(this.mode){
+      case 'video':
+        var event = new CustomEvent('nextImageEvent')
+        document.dispatchEvent(event)
+        break
+      case 'profile':
+        console.log(evt)
+        var event = new CustomEvent('searchProfileEvent', {detail: evt.latlng})
+        document.dispatchEvent(event)
+        break
+      } 
     });
+    
     this.on( 'dblclick', function( evt){
       this.removeEventParent(evt);
-    });
+    })
     L.DomEvent.on(document, 'selectImageSerieEvent', this._selectImage, this)
     L.DomEvent.on(document, 'toggleImageSerieEvent', this._showImage, this)
     L.DomEvent.on(document, 'resetGeotiffViewEvent', this._resetView, this)
+    L.DomEvent.on(document, 'modeChangeEvent', this._modeChange, this)
   },
   removeListeners () {
     L.DomEvent.off(document, 'selectImageSerieEvent', this._selectImage, this)
     L.DomEvent.off(document, 'toggleImageSerieEvent', this._showImage, this)
     L.DomEvent.off(document, 'resetGeotiffViewEvent', this._resetView, this)
+    L.DomEvent.off(document, 'modeChangeEvent', this._modeChange, this)
+  },
+  _modeChange (evt) {
+    this.mode = evt.detail
+    console.log(this.mode)
   },
   _resetView: function (evt) {
     this._map.fitBounds(this._bounds)

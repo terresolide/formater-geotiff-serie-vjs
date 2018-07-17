@@ -28,6 +28,7 @@ var L = require("leaflet")
 L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
 L.Control.ResetControl = require("./leaflet.reset-control.js")
 L.Control.ColorscaleControl = require("./leaflet.colorscale-control.js")
+L.Control.ModeControl = require('./leaflet.mode-control.js')
 export default {
 
   props:{
@@ -53,7 +54,9 @@ export default {
               isFullscreen: false,
               fullscreenNode: null,
               parentNode: null,
-              portrayal: null
+              portrayal: null,
+//               modeChangeListener:null,
+//               mode: null
         }
   },
   created () {
@@ -65,9 +68,13 @@ export default {
     this.initMap()
     this.getInfoSerie()
     // this.initListeners()
+//     this.modeChangeListener = this.modeChange.bind(this)
+//     document.addEventListener('modeChangeEvent', this.modeChangeListener)
   },
   destroyed () {
     this.destroyFullscreen()
+//     document.removeEventListener('modeChangeEvent', this.modeChangeListener)
+//     this.modeChangeListener = null
   },
   methods: {
     initMap () {
@@ -130,13 +137,15 @@ export default {
            [resp.body.bbox.north, resp.body.bbox.west], 
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
-       this.portrayal = resp.body.portrayal
+       this.portrayal = resp.body.portrayal || null
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
        this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
        this.geotiffSerie.addTo(this.map)
        this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
        this.colorscale.addTo(this.map)
+       this.mode = new L.Control.ModeControl(this.lang)
+       this.mode.addTo(this.map)
        this.resize()
        //fitBounds after adding geotiffSerie else chrome do not zoom properly
        this.map.fitBounds(this.bounds)
@@ -170,7 +179,6 @@ export default {
     getProfile (evt) {
       console.log('searchProfile');
     },
-   
   }
   
 }
@@ -217,11 +225,13 @@ html,body{
 }
 .leaflet-colorscale-tooltip{
   display:block;
-  padding:4px 3px;
+  padding:3px 3px;
   position:absolute;
   left:0;
-  top:-25px;
-  font-size:14px;
+  width:40px;
+  text-align:center;
+  top:-20px;
+  font-size:12px;
   color:white;
   border-radius:5px;
   opacity:0;
@@ -233,5 +243,50 @@ html,body{
 .leaflet-colorscale canvas{
 	width:100px;
 	height:20px;
+}
+/** css leaflet.mode-control.js **/
+.leaflet-control.leaflet-mode h4{
+  margin:0;
+  padding:0;
+}
+.leaflet-control.leaflet-mode a.leaflet-mode-toggle{
+    margin: 0;
+    border: none;
+}
+.leaflet-control.leaflet-mode-list {
+ background:white;
+ margin:0;
+ border:none;
+ padding: 5px
+}
+.leaflet-control input[type="radio"]{
+ vertical-align:bottom;
+}
+.leaflet-control.leaflet-mode h4 {
+  background: white;
+  color:black;
+  min-height:30px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+.leaflet-control.leaflet-mode h4 span{
+  display:none;
+  margin-left:5px;
+}
+.leaflet-control.leaflet-mode form{
+  display:none;
+}
+.leaflet-control.leaflet-mode.leaflet-control-expanded h4,
+.leaflet-control.leaflet-mode.leaflet-control-expanded h4 a {
+  background: black;
+  color:white;
+}
+.leaflet-control.leaflet-mode.leaflet-control-expanded h4 span{
+  display:inline-block;
+   margin-left:5px;
+  margin-top: 5px;
+}
+.leaflet-control.leaflet-mode.leaflet-control-expanded form{
+  display:block;
 }
 </style>

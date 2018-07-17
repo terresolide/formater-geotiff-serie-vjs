@@ -168,7 +168,7 @@ export default {
     this.$i18n.locale = this.lang
     moment.locale(this.lang)
     if (this.indexImage) {
-   this.selected = this.indexImage
+      this.selected = this.indexImage
     }
     var event = new CustomEvent('aerisThemeRequest', {});
     document.dispatchEvent(event);
