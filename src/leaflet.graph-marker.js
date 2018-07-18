@@ -64,7 +64,9 @@ L.GraphMarker = L.Marker.extend({
     if (!this.data) {
       this.searchData()
     } else {
-      var event = new CustomEvent('dataTruc')
+      //event to display graph with data @todo and  (x,y)
+      var event = new CustomEvent('graphDataEvent', {detail: { data: this.data}})
+      document.dispatchEvent(event)
     }
   },
   searchData () {
@@ -116,6 +118,7 @@ L.GraphMarker = L.Marker.extend({
   },
   handleSuccess (response) {
     this.data = response
+    this.dispatchData()
   }
 })
 

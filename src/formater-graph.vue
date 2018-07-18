@@ -1,12 +1,10 @@
 <template>
 <span class="formater-graph">
 <span class="close fa fa-close" @click="close"></span>
-<h4 @mousemove="move" @mousedown="movestart">{{title}}</h4>
+<h4  @mousedown="movestart">{{title}}</h4>
   mon graphique
 </span>
 </template>
-
-
 
 <script>
 
@@ -23,7 +21,12 @@ export default {
       color: 'black',
       aerisThemeListener: null,
       graphDataListener: null,
-      width: 300
+      mousemoveListener: null,
+      mouseupListener: null,
+      width: 300,
+      selected: false,
+      delta: {x: 0, y:0},
+      pos: {x:0, y:0}
 	}
   },
  
@@ -45,13 +48,31 @@ export default {
       this.$el.style.display = 'block'
     },
     movestart (evt) {
+      this.selected = true
+      this.delta = {
+          x: this.pos.x - this.$el.offsetLeft,
+          y: this.pos.y - this.$el.offsetTop
+      }
+     
+      console.log( this.$el.offsetLeft)
       console.log(evt)
     },
     move (evt) {
-      console.log(evt)
+      // console.log(evt)
+      this.pos.x = evt.clientX
+      this.pos.y = evt.clientY
+      if (this.selected) {
+        var left = this.pos.x - this.delta.x
+        var top = this.pos.y - this.delta.y
+        this.$el.style.left = left + 'px'
+        this.$el.style.top = top + 'px'
+      }
+    },
+    moveEnd () {
+      this.selected = false
     },
     draw (evt) {
-      
+      console.log(evt)
     },
     clear () {
       
@@ -60,13 +81,34 @@ export default {
   created () {
 	this.graphDataListener = this.draw.bind(this) 
     document.addEventListener('graphDataEvent', this.graphDataListener);
-	this.aerisThemeListener = this.handleTheme.bind(this) 
-    document.addEventListener('aerisTheme', this.aerisThemeListener);
-    var event = new CustomEvent('aerisThemeRequest', {});
+
+	this.mousemoveListener = this.move.bind(this)
+    document.addEventListener('mousemove', this.mousemoveListener)
+    this.mouseupListener = this.moveEnd.bind(this)
+    document.addEventListener('mouseup', this.mouseupListener)
+    
+    this.aerisThemeListener = this.handleTheme.bind(this) 
+    document.addEventListener('aerisTheme', this.aerisThemeListener)
+    
+    var event = new CustomEvent('aerisThemeRequest', {})
     document.dispatchEvent(event);
-  },
-  mounted (){
   
+  },
+  mounted () {
+  
+  },
+  destroyed () {
+    document.removeEventListener('graphDataEvent', this.graphDataListener)
+    this.graphDataListener = null
+    
+    document.removeEventListener('mousemove', this.mousemoveListener)
+    this.mousemoveListener = null
+    document.removeEventListener('mouseup', this.mouseupListener)
+    this.mouseupListener = null
+    
+    document.removeEventListener('aerisTheme', this.aerisThemeListener)
+    this.aerisThemeListener = null
+ 
   }
 }
 
