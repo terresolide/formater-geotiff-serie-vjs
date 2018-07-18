@@ -100,7 +100,7 @@ if (process.env.NODE_ENV === 'preproduction') {
           NODE_ENV: '"production"'
         }
       }),
-      new CleanWebpackPlugin(["dist0/*.*"]),
+      new CleanWebpackPlugin(["webcomponents/*.*"]),
       new webpack.optimize.UglifyJsPlugin({
         sourceMap: true,
         compress: {

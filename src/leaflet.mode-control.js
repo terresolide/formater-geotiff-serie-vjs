@@ -16,14 +16,14 @@ L.Control.ModeControl = L.Control.extend({
       value: 'video',
       checked: true,
       label: {
-        fr: 'vidéo',
-        en: 'video'
+        fr: 'Lecture',
+        en: 'Playback'
       }
     },
     {
       value: 'profile',
       label: {
-        fr: 'Profile temporel',
+        fr: 'Profil temporel',
         en: 'Temporal profile'
       }
     }],

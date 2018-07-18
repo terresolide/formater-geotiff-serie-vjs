@@ -19,10 +19,18 @@ import Map from './formater-map.vue';
 // problème quand je charge l'originale dans un autre répertoire avec i18n???
 import GeotiffSerieControl from './geotiff-serie-control.vue';
 
+// Add aeris-theme from other local repository!
+import AerisTheme from '../../aeris-commons-components-vjs/src/aeris-theme/aeris-theme.vue';
+
 ljs.addAliases({
 	dep: [
 	   'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css', 
 	  //'https://use.fontawesome.com/releases/v5.1.0/css/all.css',
+	   // leaflet fontawesome marker
+	   //--------------------------
+	 //icon marker with font awesome CSS
+	    //-----------------------------
+	    'https://api.poleterresolide.fr/lib/awesome-marker/leaflet.awesome-markers.css',
 		 //leaflet
 		//------------
 		'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.css',
@@ -34,6 +42,7 @@ ljs.addAliases({
 	  ]
 })
 ljs.load('dep', function() {
+  Vue.customElement('aeris-theme', AerisTheme);
   Vue.customElement('geotiff-serie-control', GeotiffSerieControl);
   Vue.customElement('formater-map', Map);
 	// Vue.customElement('formater-test', Test);

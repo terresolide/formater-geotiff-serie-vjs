@@ -29,6 +29,7 @@ L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
 L.Control.ResetControl = require("./leaflet.reset-control.js")
 L.Control.ColorscaleControl = require("./leaflet.colorscale-control.js")
 L.Control.ModeControl = require('./leaflet.mode-control.js')
+L.GraphMarker = require('./leaflet.graph-marker.js')
 export default {
 
   props:{
@@ -142,8 +143,10 @@ export default {
        this.map.addControl(reset)
        this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
        this.geotiffSerie.addTo(this.map)
-       this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
-       this.colorscale.addTo(this.map)
+       if (this.portrayal) {
+         this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
+         this.colorscale.addTo(this.map)
+       }
        this.mode = new L.Control.ModeControl(this.lang)
        this.mode.addTo(this.map)
        this.resize()
