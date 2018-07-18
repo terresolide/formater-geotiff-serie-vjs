@@ -16,6 +16,7 @@
 <template>
    <span class="formater-map">   
     <div :id="id"></div>
+   <formater-graph ref="graph"></formater-graph>
     <div class="geotiff-control">
      <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" fullscreenbutton="true" @fullscreen="handleFullscreen" @resize="resize"></geotiff-serie-control>
     </div>
@@ -30,6 +31,7 @@ L.Control.ResetControl = require("./leaflet.reset-control.js")
 L.Control.ColorscaleControl = require("./leaflet.colorscale-control.js")
 L.Control.ModeControl = require('./leaflet.mode-control.js')
 L.GraphMarker = require('./leaflet.graph-marker.js')
+L.SelectedMarker = require('./leaflet.selected-marker.js')
 export default {
 
   props:{
@@ -56,6 +58,10 @@ export default {
               fullscreenNode: null,
               parentNode: null,
               portrayal: null,
+              searchProfileListener: null,
+              selectedMarker: null,
+              api: null,
+              graphWidth: 350
 //               modeChangeListener:null,
 //               mode: null
         }
@@ -69,13 +75,13 @@ export default {
     this.initMap()
     this.getInfoSerie()
     // this.initListeners()
-//     this.modeChangeListener = this.modeChange.bind(this)
-//     document.addEventListener('modeChangeEvent', this.modeChangeListener)
+    this.searchProfileListener = this.getProfile.bind(this)
+    document.addEventListener('searchProfileEvent', this.searchProfileListener)
   },
   destroyed () {
     this.destroyFullscreen()
-//     document.removeEventListener('modeChangeEvent', this.modeChangeListener)
-//     this.modeChangeListener = null
+    document.removeEventListener('searchProfileEvent', this.searchProfileListener)
+    this.searchProfileListener = null
   },
   methods: {
     initMap () {
@@ -93,6 +99,7 @@ export default {
         }).addTo( this.map );
       
       this.map.on('click', this.searchProfile);
+      this.selectedMarker = new L.SelectedMarker()
     
     },
     initFullscreen () {
@@ -101,9 +108,7 @@ export default {
       this.fullscreenNode = div
       document.body.append(this.fullscreenNode)
       this.parentNode = this.$el.parentNode.parentNode
-      
       this.parentNode.style.height = this.parentNode.offsetHeight + 'px'
-      console.log(this.parentNode.style.height)
     },
     resize () {
       if (!this.$el || !this.$el.parentNode) {
@@ -111,10 +116,9 @@ export default {
       }
      var parentPos = this.$el.parentNode.parentNode.getBoundingClientRect()
      var geotiffControlPos = this.$el.querySelector('.geotiff-control').getBoundingClientRect()
-     console.log(parentPos.height)
-     console.log(geotiffControlPos.height)
-     console.log(this.$el.querySelector('.geotiff-control'))
      this.$el.querySelector('#' + this.id).style.height = (parentPos.height - geotiffControlPos.height) + 'px'
+     this.graphWidth = this.$el.parentNode.offsetWidth * 0.5
+     this.$refs.graph.querySelector('.formater-graph').style.width = this.graphWidth + 'px'
      if (this.map) {
        this.map.invalidateSize()
      }
@@ -139,6 +143,7 @@ export default {
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
        this.portrayal = resp.body.portrayal || null
+       this.api = resp.body.api || null
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
        this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
@@ -147,8 +152,10 @@ export default {
          this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
          this.colorscale.addTo(this.map)
        }
-       this.mode = new L.Control.ModeControl(this.lang)
-       this.mode.addTo(this.map)
+       if (this.api) {
+	       this.mode = new L.Control.ModeControl(this.lang)
+	       this.mode.addTo(this.map)
+       }
        this.resize()
        //fitBounds after adding geotiffSerie else chrome do not zoom properly
        this.map.fitBounds(this.bounds)
@@ -181,6 +188,18 @@ export default {
     
     getProfile (evt) {
       console.log('searchProfile');
+      
+      if (this.selectedMarker.marker && this.selectedMarker.marker.searching) {
+        console.log(this.selectedMarker.marker.searching)
+        alert('attendre la fin du processus avant d\'ajouter des marqueurs')
+        return
+      }
+      console.log(this.selectedMarker)
+      var marker = new L.GraphMarker(
+          evt.detail, 
+          this.selectedMarker,
+          {api: this.api})
+      marker.addTo(this.map)
     },
   }
   

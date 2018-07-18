@@ -46,7 +46,6 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
         document.dispatchEvent(event)
         break
       case 'profile':
-        console.log(evt)
         var event = new CustomEvent('searchProfileEvent', {detail: evt.latlng})
         document.dispatchEvent(event)
         break
