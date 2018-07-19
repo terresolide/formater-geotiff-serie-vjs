@@ -1,16 +1,19 @@
-<i18n>
+<!-- 
+/**
+ * Component build from geotiff-serie metadata 
+ * @author epointal
+ * 
+ */
+  -->
+ <i18n>
 {
    "en":{
-       "wyn":         "What is my name ?",
-       "nobody" :    "Nobody",
-       "mynameis":    "My name is",
-       "graphtitle": "Temporal profile"
+       "graphtitle": "Temporal profile",
+       "waitprocessend": "Wait for the end of the process to start a new search"
    },
    "fr":{
-       "wyn":         "Quel est mon nom ?",
-       "nobody" :    "Personne",
-       "mynameis":    "Mon nom est",
-       "graphtitle":  "Profil temporel"
+       "graphtitle":  "Profil temporel",
+       "waitprocessend": "Attendre la fin du processus pour lancer une nouvelle recherche"
    }
 }
 </i18n>
@@ -29,7 +32,13 @@
 </template>
 
 <script>
-
+/**
+ * Component build with the metadata of a geotiff serie 
+ *
+ * @prop {String} id
+ * @prop {String} lang 'en' or 'fr' only
+ * @prop {String} metadataurl the url of metadata information for this geotiff serie (@exemple )
+ */
 var L = require("leaflet")
 L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
 L.Control.ResetControl = require("./leaflet.reset-control.js")
@@ -37,6 +46,7 @@ L.Control.ColorscaleControl = require("./leaflet.colorscale-control.js")
 L.Control.ModeControl = require('./leaflet.mode-control.js')
 L.GraphMarker = require('./leaflet.graph-marker.js')
 L.SelectedMarker = require('./leaflet.selected-marker.js')
+
 export default {
   props:{
       id: {
@@ -54,21 +64,23 @@ export default {
   },
   data () {
         return {
-              pseudo: 'Truc',
               map: null,
               images:[],
               bounds: null,
               isFullscreen: false,
+              // fullscreen node where append component
               fullscreenNode: null,
+              // to register origin node when switch to fullscreen
               parentNode: null,
-              portrayal: null,
-             // searchProfileListener: null,
               selectedMarker: null,
               api: null,
+              // define the color legend
+              portrayal: null,
               graphWidth: 350,
-              graphMarkers: null
-//               modeChangeListener:null,
-//               mode: null
+              // L.GroupLayers of markers
+              graphMarkers: null,
+              searchProfileListener: null,
+              modeChangeListener:null
         }
   },
   created () {
@@ -79,14 +91,17 @@ export default {
     this.initFullscreen()
     this.initMap()
     this.getInfoSerie()
-    // this.initListeners()
     this.searchProfileListener = this.getProfile.bind(this)
-   document.addEventListener('searchProfileEvent', this.searchProfileListener)
+    document.addEventListener('searchProfileEvent', this.searchProfileListener)
+    this.modeChangeListener = this.modeChange.bind(this)
+    document.addEventListener('modeChangeEvent', this.modeChangeListener)
   },
   destroyed () {
     this.destroyFullscreen()
     document.removeEventListener('searchProfileEvent', this.searchProfileListener)
     this.searchProfileListener = null
+    document.removeEventListener('modeChangeEvent', this.modeChangeListener)
+    this.modeChangeListener = null
   },
   methods: {
     initMap () {
@@ -103,12 +118,14 @@ export default {
           
         }).addTo( this.map );
       
-      // this.map.on('click', this.getProfile);
       this.selectedMarker = new L.SelectedMarker()
       this.graphMarkers = L.layerGroup()
       this.graphMarkers.addTo(this.map)
     
     },
+    /**
+    * create a fixed div on DOM document where append component when fullscreen
+    */
     initFullscreen () {
       var div = document.createElement('div')
       div.className = 'formater-fullscreen'
@@ -172,30 +189,42 @@ export default {
     handleError (response) {
       console.log(response)
     },
+    /**
+    * switch fullscreen / normal view
+    * @param {Event} evt 
+    */
     handleFullscreen (evt) {
-      console.log(this.$refs.geotiffControl.offsetHeight)
       var nodePos = this.$el.querySelector('.geotiff-control').getBoundingClientRect()
-      console.log(nodePos)
       if (this.isFullscreen) {
         this.parentNode.append(this.$el.parentNode)
         var height = this.parentNode.offsetHeight
         this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
         this.fullscreenNode.style.pointerEvents = 'none'
       }else{
-        console.log(evt)
         this.fullscreenNode.append(this.$el.parentNode)
         var height = window.innerHeight || document.documentElement.clientHeight
-        console.log(height)
         this.$el.querySelector('#' +this.id).style.height = (height - nodePos.height) + 'px'
         this.fullscreenNode.style.pointerEvents = 'auto'
       }
       this.isFullscreen = !this.isFullscreen
       this.map.invalidateSize()
     },
-    
+    modeChange (evt) {
+      switch (evt.detail) {
+      case 'video':
+        this.graphMarkers.remove()
+        // close 
+        var event = new CustomEvent('closeBlockEvent')
+        document.dispatchEvent(event)
+        break
+      case 'profile':
+        this.graphMarkers.addTo(this.map)
+        break
+      }
+    },
     getProfile (evt) {
       if (this.selectedMarker.marker && this.selectedMarker.marker.searching) {
-        alert('attendre la fin du processus avant d\'ajouter des marqueurs')
+        alert(this.$i18n.t('waitprocessend'))
         return
       }
   
