@@ -54,18 +54,28 @@ L.GraphMarker = L.Marker.extend({
     this.options.defColor = icon.options.markerColor
     icon.options.markerColor = "red"
     this.setIcon(icon)
+    this.dispatchData(true)
   },
   unselect () {
     var icon = this.options.icon;
     icon.options.markerColor = this.options.defColor
     this.setIcon(icon)
   },
-  dispatchData () {
-    if (!this.data) {
+  dispatchData (direct) {
+    if (!this.data && !this.searching) {
       this.searchData()
     } else {
       //event to display graph with data @todo and  (x,y)
-      var event = new CustomEvent('graphDataEvent', {detail: { data: this.data}})
+   
+      var point = this._map.latLngToContainerPoint(this.getLatLng())
+      var event = new CustomEvent('graphDataEvent', {detail: 
+        { 
+          data: this.data,
+          top: point.y, 
+          left: point.x, 
+          blockId: 'graph', 
+          layerId: this._leaflet_id,
+          open: direct}})
       document.dispatchEvent(event)
     }
   },
@@ -118,7 +128,13 @@ L.GraphMarker = L.Marker.extend({
   },
   handleSuccess (response) {
     this.data = response
-    this.dispatchData()
+    this.options.defColor = 'green'
+    if (this.selectedMarker !== this){
+      var icon = this.options.icon
+      icon.options.markerColor = 'green'
+      this.setIcon(icon)
+    }
+    this.dispatchData(false)
   }
 })
 

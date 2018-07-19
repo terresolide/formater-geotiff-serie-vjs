@@ -14,9 +14,12 @@
 </i18n>
 
 <template>
-   <span class="formater-map">   
+   <span class="formater-map">  
+      <formater-draggable-block ref="graph" id="graph">
+      	  <formater-graph></formater-graph>
+      </formater-draggable-block> 
     <div :id="id"></div>
-   <formater-graph ref="graph"></formater-graph>
+ 
     <div class="geotiff-control">
      <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" fullscreenbutton="true" @fullscreen="handleFullscreen" @resize="resize"></geotiff-serie-control>
     </div>
@@ -58,10 +61,11 @@ export default {
               fullscreenNode: null,
               parentNode: null,
               portrayal: null,
-              searchProfileListener: null,
+             // searchProfileListener: null,
               selectedMarker: null,
               api: null,
-              graphWidth: 350
+              graphWidth: 350,
+              graphMarkers: null
 //               modeChangeListener:null,
 //               mode: null
         }
@@ -76,7 +80,7 @@ export default {
     this.getInfoSerie()
     // this.initListeners()
     this.searchProfileListener = this.getProfile.bind(this)
-    document.addEventListener('searchProfileEvent', this.searchProfileListener)
+   document.addEventListener('searchProfileEvent', this.searchProfileListener)
   },
   destroyed () {
     this.destroyFullscreen()
@@ -98,8 +102,10 @@ export default {
           
         }).addTo( this.map );
       
-      this.map.on('click', this.searchProfile);
+      // this.map.on('click', this.getProfile);
       this.selectedMarker = new L.SelectedMarker()
+      this.graphMarkers = L.layerGroup()
+      this.graphMarkers.addTo(this.map)
     
     },
     initFullscreen () {
@@ -118,7 +124,7 @@ export default {
      var geotiffControlPos = this.$el.querySelector('.geotiff-control').getBoundingClientRect()
      this.$el.querySelector('#' + this.id).style.height = (parentPos.height - geotiffControlPos.height) + 'px'
      this.graphWidth = this.$el.parentNode.offsetWidth * 0.5
-     this.$refs.graph.querySelector('.formater-graph').style.width = this.graphWidth + 'px'
+     this.$refs.graph.querySelector('.formater-draggable-block').style.width = this.graphWidth + 'px'
      if (this.map) {
        this.map.invalidateSize()
      }
@@ -187,19 +193,29 @@ export default {
     },
     
     getProfile (evt) {
-      console.log('searchProfile');
-      
       if (this.selectedMarker.marker && this.selectedMarker.marker.searching) {
-        console.log(this.selectedMarker.marker.searching)
         alert('attendre la fin du processus avant d\'ajouter des marqueurs')
         return
       }
-      console.log(this.selectedMarker)
+  
       var marker = new L.GraphMarker(
           evt.detail, 
           this.selectedMarker,
           {api: this.api})
-      marker.addTo(this.map)
+      this.graphMarkers.addLayer(marker)
+
+      // open formater-draggable-block for graph
+       var point = this.map.latLngToContainerPoint(evt.detail)
+       console.log(point)
+      var event = new CustomEvent('openBlockEvent',
+          {detail: {
+            blockId: 'graph',
+            top:  point.y, 
+            left: point.x,
+            closeEnabled: false,
+            layerId: marker._leaflet_id
+          }})
+      document.dispatchEvent(event)
     },
   }
   
