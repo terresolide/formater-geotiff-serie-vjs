@@ -3,20 +3,22 @@
    "en":{
        "wyn":         "What is my name ?",
        "nobody" :    "Nobody",
-       "mynameis":    "My name is"
+       "mynameis":    "My name is",
+       "graphtitle": "Temporal profile"
    },
    "fr":{
        "wyn":         "Quel est mon nom ?",
        "nobody" :    "Personne",
-       "mynameis":    "Mon nom est"
+       "mynameis":    "Mon nom est",
+       "graphtitle":  "Profil temporel"
    }
 }
 </i18n>
 
 <template>
    <span class="formater-map">  
-      <formater-draggable-block ref="graph" id="graph">
-      	  <formater-graph></formater-graph>
+      <formater-draggable-block ref="graph" id="graph" :title="$t('graphtitle')">
+      	  <formater-graph uom='cm' :lang="lang"></formater-graph>
       </formater-draggable-block> 
     <div :id="id"></div>
  
@@ -36,7 +38,6 @@ L.Control.ModeControl = require('./leaflet.mode-control.js')
 L.GraphMarker = require('./leaflet.graph-marker.js')
 L.SelectedMarker = require('./leaflet.selected-marker.js')
 export default {
-
   props:{
       id: {
           type: String,

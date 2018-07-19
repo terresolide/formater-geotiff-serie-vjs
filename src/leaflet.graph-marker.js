@@ -46,7 +46,6 @@ L.GraphMarker = L.Marker.extend({
     this.data = data
   },
   toggle () {
-    console.log('search = ' + this.searching)
     this.selectedMarker.change(this)
   },
   select (){
@@ -65,10 +64,8 @@ L.GraphMarker = L.Marker.extend({
     if (!this.data && !this.searching) {
       this.searchData()
     } else {
-      //event to display graph with data @todo and  (x,y)
-   
       var point = this._map.latLngToContainerPoint(this.getLatLng())
-      var event = new CustomEvent('graphDataEvent', {detail: 
+      var event = new CustomEvent('blockContentEvent', {detail: 
         { 
           data: this.data,
           top: point.y, 
@@ -128,12 +125,18 @@ L.GraphMarker = L.Marker.extend({
   },
   handleSuccess (response) {
     this.data = response
+    
+    // change marker color
     this.options.defColor = 'green'
-    if (this.selectedMarker !== this){
+    if (this.selectedMarker.marker !== this){
       var icon = this.options.icon
       icon.options.markerColor = 'green'
       this.setIcon(icon)
+    }else{
+      this.options.defColor = 'green'
     }
+    
+    // dispatch data but not come from click on marker
     this.dispatchData(false)
   }
 })

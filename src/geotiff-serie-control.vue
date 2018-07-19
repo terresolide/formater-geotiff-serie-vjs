@@ -278,7 +278,7 @@ export default {
    console.log( "undefined");
    return;
     }
-    var info = { bbox: this.bbox, img:this.list[index].png, date: this.date2str( this.list[index].date)};
+    var info = { bbox: this.bbox, img:this.list[index].png, datestr: this.date2str( this.list[index].date), date: this.list[index].date};
     var evt = new CustomEvent("selectImageSerieEvent", {detail: info});
     document.dispatchEvent(evt);
     

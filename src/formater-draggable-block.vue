@@ -23,7 +23,7 @@ export default {
     return {
       color: 'black',
       aerisThemeListener: null,
-      graphDataListener: null,
+      blockContentListener: null,
       mousemoveListener: null,
       mouseupListener: null,
       openBlockListener: null,
@@ -66,13 +66,13 @@ export default {
       document.dispatchEvent(event)
     },
     enableClose (evt) {
-      // voir avec les changements du contenu plutôt
+      // receive content
       if (this.$el.style.display === 'none' && 
           (evt.detail.layerId !== this.layerId && evt.detail.open))  {
         //open
         this.open(evt)
       }
-      // enableClose si correspond au layer
+      // enableClose if content corresponds to the layer
       if (evt.detail.layerId === this.layerId) {
         this.closeEnabled = true
       }
@@ -112,14 +112,14 @@ export default {
 
   },
   created () {
- 	this.graphDataListener = this.enableClose.bind(this) 
-    document.addEventListener('graphDataEvent', this.graphDataListener);
+ 	this.blockContentListener = this.enableClose.bind(this) 
+    document.addEventListener('blockContentEvent', this.blockContentListener)
 	
 	this.openBlockListener = this.open.bind(this) 
-    document.addEventListener('openBlockEvent', this.openBlockListener);
+    document.addEventListener('openBlockEvent', this.openBlockListener)
 	
 	this.closeBlockListener = this.hide.bind(this) 
-    document.addEventListener('closeBlockEvent', this.closeBlockListener);
+    document.addEventListener('closeBlockEvent', this.closeBlockListener)
 
 	this.mousemoveListener = this.move.bind(this)
     document.addEventListener('mousemove', this.mousemoveListener)
@@ -137,11 +137,12 @@ export default {
   
   },
   destroyed () {
-     document.removeEventListener('graphDataEvent', this.graphDataListener)
-     this.graphDataListener = null
-    
+    document.removeEventListener('blockContentEvent', this.blockContentListener)
+    this.blockContentListener = null 
     document.removeEventListener('openBlockEvent', this.openBlockListener)
     this.openBlockListener = null
+    document.removeEventListener('closeBlockEvent', this.closeBlockListener)
+    this.closeBlockListener = null
     
     document.removeEventListener('mousemove', this.mousemoveListener)
     this.mousemoveListener = null

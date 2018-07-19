@@ -11,12 +11,8 @@ L.SelectedMarker =   L.Evented.extend({
 	  L.DomEvent.on(document, 'closeBlockEvent', this.unselect, this)
 	},
 	change:function(marker){
-//	  if (this.marker && this.marker.searching) {
-//	    alert('attendre la fin du processus avant de lancer une nouvelle recherche')
-//	    return;
-//	  }
 		if (this.marker) {
-		  // this.marker.unselect()
+		  // close block then unselect the selected marker
 		  var evt = new CustomEvent('closeBlockEvent',{
 		    detail: {
 		      blockId: 'graph',

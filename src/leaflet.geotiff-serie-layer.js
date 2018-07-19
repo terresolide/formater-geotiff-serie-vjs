@@ -76,8 +76,8 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
   _selectImage: function(evt) {
     this.setUrl(evt.detail.img);
     var node = this.getElement();
-    node.setAttribute( 'title', evt.detail.date);
-    node.setAttribute( 'alt', evt.detail.date);
+    node.setAttribute( 'title', evt.detail.datestr);
+    node.setAttribute( 'alt', evt.detail.datestr);
   },
   _showImage: function(evt) {
     var opacity = evt.detail.show ? 0.6: 0;
