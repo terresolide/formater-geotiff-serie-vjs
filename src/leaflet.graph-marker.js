@@ -17,7 +17,7 @@ L.GraphMarker = L.Marker.extend({
   data: null,
   selectedMarker: null,
   searching: false,
-  initialize: function(latlng, selectedMarker, options){
+  initialize: function(latlng, selectedMarker, data, options){
     // init with awesome icon 
     var color = options.color || 'cadetblue'
     options.icon = new L.AwesomeMarkers.icon( { 
@@ -29,9 +29,7 @@ L.GraphMarker = L.Marker.extend({
     this.selectedMarker = selectedMarker
     L.Util.setOptions(this, options);
     this._latlng = L.latLng(latlng);
-    if (options.data) {
-      this.data = options.data
-    }
+    this.data = data
    // L.Marker.prototype.initialize.call(latlng, options)
     this.dispatchData()
   },
@@ -67,16 +65,18 @@ L.GraphMarker = L.Marker.extend({
     if (!this.data && !this.searching) {
       this.searchData()
     } else {
+      if (this._map) {
       var point = this._map.latLngToContainerPoint(this.getLatLng())
-      var event = new CustomEvent('blockContentEvent', {detail: 
-        { 
-          data: this.data,
-          top: point.y, 
-          left: point.x, 
-          blockId: 'graph', 
-          layerId: this._leaflet_id,
-          open: direct}})
-      document.dispatchEvent(event)
+        var event = new CustomEvent('blockContentEvent', {detail: 
+          { 
+            data: this.data,
+            top: point.y, 
+            left: point.x, 
+            blockId: 'graph', 
+            layerId: this._leaflet_id,
+            open: direct}})
+        document.dispatchEvent(event)
+      }
     }
   },
   searchData () {
@@ -103,7 +103,6 @@ L.GraphMarker = L.Marker.extend({
           _this.searching = true
         }
      }
-     console.log(this.request())
     //  xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
      xhttp.open("GET", encodeURI( this.request() ), true);
      xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');

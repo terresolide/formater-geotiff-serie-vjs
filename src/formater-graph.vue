@@ -30,97 +30,116 @@ export default {
     lang: {
       type: String,
       default: 'fr'
+    },
+    min: {
+    	type: Number,
+    	default: null
+    },
+    max: {
+    	type: Number,
+    	default: null
     }
   },
   data () {
-	return {
-	  blockContentListener: null,
-	  closeBlockListener: null,
-	  selectImageSerieListener: null,
-	  waiting: null
-	}
+		return {
+		  blockContentListener: null,
+		  closeBlockListener: null,
+		  selectImageSerieListener: null,
+		  waiting: null
+		}
   },
   methods: {
 	draw (evt) {
-	  var datas = evt.detail.data
-	  if (datas === null){
+	  var data = evt.detail.data
+	  if (data === null){
 	    return
 	  }
 	  var currentdate = this.currentdate
 	  var coord = []
-	  console.log(datas)
-	  datas.forEach( function( item){
+	  data.forEach( function( item){
       	 var date = Date.parse(item.date);
       	 coord.push([date, item.value]);
-      })
-       var container = this.$el.querySelector('.chart')
-       this.chart = Highcharts.chart(container, {
-         chart: {
-           height: 200,
-           marginBottom: 20,
-           type: 'area',
-           events: {
-    	       click: function (event) {
-    	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
-    	         document.dispatchEvent(evt)
-    	       }
-             }
-           // width: width
-         },
-         credits: {
-           enabled: false
-         },
-         title: {
-           text: '',
-           margin: 0
-         },
-         xAxis: {
-           type: 'datetime',
-           dateTimeLabelFormats: { // don't display the dummy year
-               month: '%e %b %Y',
-               year: '%b %Y'
-           },
-           title: {
-               text: 'Date'
-           },
-           plotLines: [{
-             color: 'red', // Color value
-            // dashStyle: 'longdashdot', // Style of the plot line. Default to solid
-             value: currentdate,
-             id: 'currentdate',
-             zIndex: 20,
-             width: 2 // Width of the line    
-           }]
-         },
-         yAxis: {
-           title: {
-             text: ''
-           },
-           labels: {
-             format: '{value:,.0f}'
-           },
-           lineWidth: 2
-         },
-         legend: {
-           enabled: false
-         },
-         tooltip: {
-           headerFormat: '<b>{point.x:%e. %b %Y}</b><br>',
-           pointFormat: '{point.y:.2f} ' + this.uom
-         },
-         plotOptions: {
-           spline: {
-             marker: {
-               enable: false
-             }
-           }
-         },
-         series: [{
-           name: 'Valeur',
-           data: coord,
-           color: 'orange'
-         }]
-       })
+    })
+    var container = this.$el.querySelector('.chart')
+    var _this = this
+    var yAxis =  {
+          title: {
+            text: ''
+          },
+          labels: {
+            format: '{value:,.0f}'
+          },
+          lineWidth: 2
+	  }
+    this.chart = Highcharts.chart(container, {
+      chart: {
+        height: 200,
+        marginBottom: 20,
+        type: 'area',
+        events: {
+ 	       click: function (event) {
+ 	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
+ 	         document.dispatchEvent(evt)
+ 	       }
+          }
+        // width: width
+      },
+      credits: {
+        enabled: false
+      },
+      title: {
+        text: '',
+        margin: 0
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: { // don't display the dummy year
+            month: '%e %b %Y',
+            year: '%b %Y'
+        },
+        title: {
+            text: 'Date'
+        },
+        plotLines: [{
+          color: 'red', // Color value
+         // dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+          value: currentdate,
+          id: 'currentdate',
+          zIndex: 20,
+          width: 2 // Width of the line    
+        }]
+      },
+      yAxis: {
+        title: {
+          text: ''
+        },
+        labels: {
+          format: '{value:,.0f}'
+        },
+        lineWidth: 2,
+        min: _this.min,
+        max: _this.max
+      },
+      legend: {
+        enabled: false
+      },
+      tooltip: {
+        headerFormat: '<b>{point.x:%e. %b %Y}</b><br>',
+        pointFormat: '{point.y:.2f} ' + this.uom
+      },
+      plotOptions: {
+        spline: {
+          marker: {
+            enable: false
+          }
+        }
+      },
+      series: [{
+        name: 'Valeur',
+        data: coord,
+        color: 'orange'
+      }]
+    })
 	},
 	placeLine (evt) {
 	  // this.chart.xAxis[0].removePlotLine(this.currentdate)
@@ -141,7 +160,11 @@ export default {
 	},
 	clear () {
       if (this.chart) {
-        this.chart.destroy()
+    	  if (Highcharts.charts[0] !== undefined) {
+    		  Highcharts.charts[0].destroy();
+    		  Highcharts.charts.splice(0, 1);
+    		  }
+        // this.chart.destroy()
       }
 	  this.$el.querySelector('.chart').innerHTML = this.waiting
 	},

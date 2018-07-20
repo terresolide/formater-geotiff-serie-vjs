@@ -21,7 +21,7 @@
 <template>
    <span class="formater-map">  
       <formater-draggable-block ref="graph" id="graph" :title="$t('graphtitle')">
-      	  <formater-graph uom='cm' :lang="lang"></formater-graph>
+      	  <formater-graph uom='cm' :lang="lang" min="-20" max="100"></formater-graph>
       </formater-draggable-block> 
     <div :id="id"></div>
  
@@ -173,12 +173,13 @@ export default {
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
        this.portrayal = resp.body.portrayal || null
+       
        this.api = resp.body.api || null
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
        this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
        this.geotiffSerie.addTo(this.map)
-       if (this.portrayal) {
+       if (this.portrayal && this.portrayal.colorscale) {
          this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
          this.colorscale.addTo(this.map)
        }
@@ -240,6 +241,7 @@ export default {
       var marker = new L.GraphMarker(
           evt.detail, 
           this.selectedMarker,
+          null,
           {api: this.api})
       this.graphMarkers.addLayer(marker)
 
@@ -267,11 +269,11 @@ export default {
       var _this = this
       this.graphMarkers = L.geoJSON(geojson, {
         pointToLayer (feature, latlng) {
-   
           var marker = new L.GraphMarker(
               latlng, 
               _this.selectedMarker,
-              {data: feature.properties.data})
+              feature.properties.data,
+              {api: _this.api})
           return marker
         }
       })

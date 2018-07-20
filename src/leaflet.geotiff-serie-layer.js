@@ -76,7 +76,6 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
   },
   _modeChange (evt) {
     this.mode = evt.detail
-    console.log(this.mode)
   },
   _resetView: function (evt) {
     this._map.fitBounds(this._bounds)

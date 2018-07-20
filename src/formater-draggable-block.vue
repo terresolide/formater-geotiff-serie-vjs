@@ -83,8 +83,8 @@ export default {
       }
       this.layerId = evt.detail.layerId
       this.$el.style.display = 'block'
-      this.top = evt.detail.top - 5
-      this.left = evt.detail.left - 5
+      this.top = evt.detail.top + 12
+      this.left = evt.detail.left + 2
       this.closeEnabled = evt.detail.closeEnabled
     },
     movestart (evt) {

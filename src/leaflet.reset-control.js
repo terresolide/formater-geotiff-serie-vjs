@@ -3,8 +3,7 @@
  */
 /* global L */
 
-// A layer control which provides for layer groupings.
-// Author: Ishmael Smyrnow
+
 L.Control.ResetControl = L.Control.extend({
     options: {
         position: 'topleft',
@@ -13,8 +12,10 @@ L.Control.ResetControl = L.Control.extend({
     _zoom: 13,
     initialize: function (bounds, options) {
       this._bounds = bounds
-      console.log('use L util')
-      console.log('after L util')
+      if (!options) {
+    	options = {}
+      }
+      L.Control.prototype.initialize.call(options)
     },
     setBounds: function (bounds) {
       this._bounds = bounds
