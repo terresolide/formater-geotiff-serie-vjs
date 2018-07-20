@@ -91,6 +91,7 @@ export default {
 		first:null,
         last:null,
         nextImageListener:null,
+        dateChangeListener: null,
         stopListener:null,
         resizeListener: null,
         keys:[],
@@ -144,6 +145,8 @@ export default {
       this.stopListener = null;
       document.removeEventListener('nextImageEvent', this.nextImageListener);
       this.nextImageListener = null;
+      document.removeEventListener('dateChangeEvent', this.dateChangeListener);
+      this.dateChangeListener = null;
       window.removeEventListener('resize', this.resizeListener)
       this.resizeListener = null
     
@@ -153,11 +156,13 @@ export default {
  
     this.$i18n.locale = this.lang;
     this.nextImageListener = this.next.bind(this) 
-    document.addEventListener('nextImageEvent', this.nextImageListener);
-    this.stopListener = this.pause.bind(this);
-    document.addEventListener('stopVisualisation', this.stopListener);
+    document.addEventListener('nextImageEvent', this.nextImageListener)
+    this.dateChangeListener = this.newDate.bind(this)
+    document.addEventListener('dateChangeEvent', this.dateChangeListener)
+    this.stopListener = this.pause.bind(this)
+    document.addEventListener('stopVisualisation', this.stopListener)
     this.resetEventListener = this.handleReset.bind(this) ;
-    document.addEventListener('aerisResetEvent', this.resetEventListener);
+    document.addEventListener('aerisResetEvent', this.resetEventListener)
     this.resizeListener = this.resize.bind(this)
     window.addEventListener('resize', this.resizeListener)
 
@@ -194,6 +199,56 @@ export default {
     }
     this.$emit('resize')
   },
+ 
+  newDate (event) {
+    var date = event.detail
+   
+    var index = this.nearestDate(date, 0, this.keys.length - 1)
+    console.log(index)
+    this.goTo(index)
+  },
+
+  nearestDate (date, istart, iend) {
+    console.log(this.keys)
+    var find = false
+    var exceeded = false
+    console.log(date)
+    var date0 = date.replace(/-/g, '')
+    console.log(date0)
+    while (!find && (iend - istart) > 1) {
+      var mid = Math.round((istart + iend) / 2)
+      console.log(mid)
+      find = (this.keys[mid] === date0)
+      if (this.keys[mid] > date0) {
+        iend = mid
+      } else {
+        istart = mid
+      }
+    }
+    if (find) {
+      return mid
+    } else if (iend - istart === 1){
+      //find the nearest date 
+      return istart
+    } else {
+      return -1
+    }
+  },
+//   nearestDateBetween(date, istart, iend){
+//     var datestart = moment(this.list[this.keys[istart]].date)
+//     var dateend = moment(this.list[this.keys[iend]].date)
+//     var datex = moment(date)
+//     var before = datex.diff(datestart, 'days')
+//     console.log(before)
+   
+//     var after = dateend.diff(datex, 'days')
+// 	console.log(after)
+//     if (before <= after) {
+//       return istart
+//     }else {
+//       return iend
+//     }
+//   },
   next (auto) {
     if(!auto){
       this.playing = false;

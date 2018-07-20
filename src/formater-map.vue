@@ -37,7 +37,12 @@
  *
  * @prop {String} id
  * @prop {String} lang 'en' or 'fr' only
- * @prop {String} metadataurl the url of metadata information for this geotiff serie (@exemple )
+ * @prop {String} metadataurl the url of metadatas for this geotiff serie 
+ *                (@exemple https://github.com/terresolide/formater-geotiff-serie-vjs/tree/master/example)
+ * @listens document:searchProfileEvent
+ * @listens document:modeChangeEvent
+ * @fires   document:closeBlockEvent
+ * @fires   document:openBlockEvent
  */
 var L = require("leaflet")
 L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
@@ -79,6 +84,7 @@ export default {
               graphWidth: 350,
               // L.GroupLayers of markers
               graphMarkers: null,
+              //listeners
               searchProfileListener: null,
               modeChangeListener:null
         }

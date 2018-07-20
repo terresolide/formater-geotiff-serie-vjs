@@ -39,7 +39,14 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     L.ImageOverlay.prototype.onRemove.call(this);
   },
   initHandler () {
+    this.click = 0
     this.on( 'click', function(evt){
+      this.click = this.click + 1
+      _this = this
+      setTimeout(function() {_this.click = 0},500)
+      if(this.click !== 1){
+        return
+      }
       switch(this.mode){
       case 'video':
         var event = new CustomEvent('nextImageEvent')
@@ -53,6 +60,7 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     });
     
     this.on( 'dblclick', function( evt){
+
       this.removeEventParent(evt);
     })
     L.DomEvent.on(document, 'selectImageSerieEvent', this._selectImage, this)

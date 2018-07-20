@@ -7,7 +7,15 @@
 
 
 <script>
-
+/**
+ * @prop {String} id
+ * @prop {String} uom unit of measurment (symbol)
+ * @prop {String} lang language code, only 'fr' or 'en'
+ * @listens blockContentEvent     trigger when block content change (its data interest us)
+ * @listens openBlockContent
+ * @listens closeBlockContent     
+ * @listens selectImageSerieEvent trigger when the image change as well as its date which interest us here.
+ */
 var Highcharts = require('highcharts')
 export default {
   props:{
@@ -50,7 +58,14 @@ export default {
          chart: {
            height: 200,
            marginBottom: 20,
-           type: 'area'
+           type: 'area',
+           events: {
+    	       click: function (event) {
+    	         console.log('dispatch')
+    	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
+    	         document.dispatchEvent(evt)
+    	       }
+             }
            // width: width
          },
          credits: {
@@ -114,7 +129,7 @@ export default {
 	  this.currentdate = Date.parse(evt.detail.date)
 	  // this.chart.xAxis[0].removePlotLine()
 	  var currentdate = this.currentdate
-	  if (this.chart) {
+	  if (this.chart && this.chart.xAxis) {
 		  this.chart.xAxis[0].update( {
 		    plotLines: [{
 	      		color: 'red', // Color value
@@ -127,7 +142,9 @@ export default {
 	  }
 	},
 	clear () {
-	  this.chart.destroy()
+      if (this.chart) {
+        this.chart.destroy()
+      }
 	  this.$el.querySelector('.chart').innerHTML = this.waiting
 	},
 	open (evt){
