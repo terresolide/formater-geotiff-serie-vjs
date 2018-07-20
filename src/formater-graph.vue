@@ -42,14 +42,14 @@ export default {
   },
   methods: {
 	draw (evt) {
-	  var data = evt.detail.data
-	  if (data === null){
+	  var datas = evt.detail.data
+	  if (datas === null){
 	    return
 	  }
 	  var currentdate = this.currentdate
-	  console.log(currentdate)
 	  var coord = []
-	  data.forEach( function( item){
+	  console.log(datas)
+	  datas.forEach( function( item){
       	 var date = Date.parse(item.date);
       	 coord.push([date, item.value]);
       })
@@ -61,7 +61,6 @@ export default {
            type: 'area',
            events: {
     	       click: function (event) {
-    	         console.log('dispatch')
     	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
     	         document.dispatchEvent(evt)
     	       }
@@ -124,7 +123,6 @@ export default {
        })
 	},
 	placeLine (evt) {
-	  console.log(evt)
 	  // this.chart.xAxis[0].removePlotLine(this.currentdate)
 	  this.currentdate = Date.parse(evt.detail.date)
 	  // this.chart.xAxis[0].removePlotLine()

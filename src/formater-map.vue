@@ -182,7 +182,10 @@ export default {
          this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
          this.colorscale.addTo(this.map)
        }
-       if (this.api) {
+       if (resp.body.example) {
+         this.loadExample(resp.body.example)
+       }
+       if (this.api || resp.body.example) {
 	       this.mode = new L.Control.ModeControl(this.lang)
 	       this.mode.addTo(this.map)
        }
@@ -253,6 +256,26 @@ export default {
           }})
       document.dispatchEvent(event)
     },
+    loadExample (url) {
+      var _this = this
+      this.$http.get( url).then(
+                    response => { _this.loadGraphMarkers(response.body); },
+                    response => { _this.handleError(response);}
+      );
+    },
+    loadGraphMarkers (geojson){
+      var _this = this
+      this.graphMarkers = L.geoJSON(geojson, {
+        pointToLayer (feature, latlng) {
+   
+          var marker = new L.GraphMarker(
+              latlng, 
+              _this.selectedMarker,
+              {data: feature.properties.data})
+          return marker
+        }
+      })
+    }
   }
   
 }

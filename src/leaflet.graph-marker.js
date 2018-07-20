@@ -29,6 +29,9 @@ L.GraphMarker = L.Marker.extend({
     this.selectedMarker = selectedMarker
     L.Util.setOptions(this, options);
     this._latlng = L.latLng(latlng);
+    if (options.data) {
+      this.data = options.data
+    }
    // L.Marker.prototype.initialize.call(latlng, options)
     this.dispatchData()
   },

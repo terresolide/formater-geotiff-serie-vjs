@@ -199,25 +199,18 @@ export default {
     }
     this.$emit('resize')
   },
- 
   newDate (event) {
     var date = event.detail
-   
     var index = this.nearestDate(date, 0, this.keys.length - 1)
-    console.log(index)
     this.goTo(index)
   },
 
   nearestDate (date, istart, iend) {
-    console.log(this.keys)
     var find = false
     var exceeded = false
-    console.log(date)
     var date0 = date.replace(/-/g, '')
-    console.log(date0)
     while (!find && (iend - istart) > 1) {
       var mid = Math.round((istart + iend) / 2)
-      console.log(mid)
       find = (this.keys[mid] === date0)
       if (this.keys[mid] > date0) {
         iend = mid
