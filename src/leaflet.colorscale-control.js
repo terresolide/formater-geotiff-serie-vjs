@@ -5,7 +5,7 @@
  * @requires plotty
  * @requires leaflet
  */
-var plotty = require('plotty')
+  var plotty = require('plotty')
 
 if (typeof L === 'undefined'){
   var L = require('leaflet')
@@ -30,13 +30,13 @@ L.Control.ColorscaleControl = L.Control.extend({
       L.Control.prototype.initialize.call(options);
     },
     setPortrayal: function (portrayal) {
-      this._colorscale = portrayal.colorscale
       this._displayMin = portrayal.displayMin
       this._displayMax = portrayal.displayMax
+      this.setColorscale(portrayal.colorscale)
     },
     setColorscale: function (colorscale) {
-      this._colorscale = colorscale
-      if (this._canvas) {
+      this._colorScale = colorscale
+      if (this._canvas && this._colorscale) {
         plotty.renderColorScaleToCanvas(this._colorScale, this._canvas)
       }
     },
@@ -91,4 +91,4 @@ L.Control.ColorscaleControl = L.Control.extend({
     }
 })
 
-module.exports = L.Control.ColorscaleControl;
+module.exports = L.Control.ColorscaleControl
