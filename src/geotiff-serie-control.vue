@@ -20,7 +20,7 @@ ORIGINAL - LA COPIE EST DANS formater-catalogue-component-vjs-->
  <span class="geotiff-date-tooltip">{{dateInTooltip}}</span>
  <div>
   <div>
-    <progress  v-show="selected!=null" :min="0" :max="last" :value="selected" @mousemove="dateFromPosition" @mouseout="hideTooltip" @click="selectFromProgress">truc</progress>
+    <progress  v-show="selected!=null" :min="keys[0]" :max="keys[last]" :value="keys[selected]" @mousemove="dateFromPosition" @mouseout="hideTooltip" @click="selectFromProgress">truc</progress>
     <div v-show="!isMinScreen" class="geotiff-eye">
       <a @click="view()" class="geotiff-nav geotiff-play"  ><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
       <a  v-if="resetbutton" v-show="selected!=null" @click="reset()" class="geotiff-nav geotiff-play"  ><i class="fa fa-undo"></i></a>
@@ -201,47 +201,20 @@ export default {
   },
   newDate (event) {
     var date = event.detail
-    var index = this.nearestDate(date, 0, this.keys.length - 1)
+    var index = this.nearestDate(date)
     this.goTo(index)
   },
 
-  nearestDate (date, istart, iend) {
+  nearestDate (date) {
     var find = false
-    var exceeded = false
-    var date0 = date.replace(/-/g, '')
-    while (!find && (iend - istart) > 1) {
-      var mid = Math.round((istart + iend) / 2)
-      find = (this.keys[mid] === date0)
-      if (this.keys[mid] > date0) {
-        iend = mid
-      } else {
-        istart = mid
-      }
-    }
-    if (find) {
-      return mid
-    } else if (iend - istart === 1){
-      //find the nearest date 
-      return istart
-    } else {
-      return -1
-    }
+    var istart = 0
+    var iend = this.keys.length - 1
+    var date0 = moment(date)
+    var start = moment(this.list[this.keys[0]].date)
+    var days = date0.diff(start, 'days')
+    var index = this.nearestIndex(days)
+    return index
   },
-//   nearestDateBetween(date, istart, iend){
-//     var datestart = moment(this.list[this.keys[istart]].date)
-//     var dateend = moment(this.list[this.keys[iend]].date)
-//     var datex = moment(date)
-//     var before = datex.diff(datestart, 'days')
-//     console.log(before)
-   
-//     var after = dateend.diff(datex, 'days')
-// 	console.log(after)
-//     if (before <= after) {
-//       return istart
-//     }else {
-//       return iend
-//     }
-//   },
   next (auto) {
     if(!auto){
       this.playing = false;
@@ -342,8 +315,36 @@ export default {
       var posG = this.$el.getBoundingClientRect()
       //tooltip position
       this.$el.querySelector('.geotiff-date-tooltip').style.left = (nodePos.left - posG.left + posX - 50) + "px"
-      return Math.round(this.last * posX / nodePos.width)
+      var days = Math.round(this.keys[this.last] * posX / nodePos.width)
+      return this.nearestIndex(days)
     }else{
+      return null
+    }
+  },
+  nearestIndex (days) {
+    //search nearest index in this.keys for number days
+    var find = false
+    var istart = 0
+    var iend = this.keys.length - 1
+    while (!find && (iend - istart) > 1) {
+      var mid = Math.round((istart + iend) / 2)
+      find = (this.keys[mid] === days)
+      if (this.keys[mid] > days) {
+        iend = mid
+      } else {
+        istart = mid
+      }
+    }
+    if (find) {
+      return mid
+    } else if (iend - istart === 1){
+      //find the nearest date 
+      if (this.keys[iend] - this.keys[mid] > this.keys[mid] - this.keys[istart]){
+        return istart
+      }else{
+        return iend
+      }
+    } else {
       return null
     }
   },
