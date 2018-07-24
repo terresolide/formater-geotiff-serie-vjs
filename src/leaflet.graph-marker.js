@@ -19,7 +19,13 @@ L.GraphMarker = L.Marker.extend({
   searching: false,
   initialize: function(latlng, selectedMarker, data, options){
     // init with awesome icon 
-    var color = options.color || 'cadetblue'
+   
+    if (data) {
+      var color = 'green'
+    } else {
+      var color = options.color || 'cadetblue'
+    }
+   
     options.icon = new L.AwesomeMarkers.icon( { 
       icon: 'line-chart', 
       prefix: 'fa', 
