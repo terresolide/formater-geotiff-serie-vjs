@@ -22,11 +22,13 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
   resetGeotiffViewListener: null,
   modeChangeListener: null,
   mode: 'video',
-  initialize (bounds, options) {
+  hasApi: null,
+  initialize (bounds, api, options) {
     var url = 'https://api.poleterresolide.fr/images/transparent.png'
     if (!options){
         options = {}
     }
+    this.api = api
     L.Util.setOptions(this, options);
     L.ImageOverlay.prototype.initialize.call(this, url, bounds, options);
   },
@@ -53,6 +55,9 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
         document.dispatchEvent(event)
         break
       case 'profile':
+        if (!_this.api) {
+          return;
+        }
         var event = new CustomEvent('searchProfileEvent', {detail: evt.latlng})
         document.dispatchEvent(event)
         break

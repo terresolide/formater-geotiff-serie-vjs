@@ -45,6 +45,7 @@
  * @fires   document:openBlockEvent
  */
 var L = require("leaflet")
+
 L.GeotiffSerieLayer = require("./leaflet.geotiff-serie-layer.js")
 L.Control.ResetControl = require("./leaflet.reset-control.js")
 L.Control.ColorscaleControl = require("./leaflet.colorscale-control.js")
@@ -172,17 +173,16 @@ export default {
            [resp.body.bbox.north, resp.body.bbox.west], 
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
-       this.portrayal = resp.body.portrayal || null
+       this.portrayalChange(resp.body.portrayal)
        
        this.api = resp.body.api || null
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
-       this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds)
+      
+     
+       this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds, this.api)
        this.geotiffSerie.addTo(this.map)
-       if (this.portrayal && this.portrayal.colorscale) {
-         this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
-         this.colorscale.addTo(this.map)
-       }
+       
        if (resp.body.example) {
          this.loadExample(resp.body.example)
        }
@@ -190,11 +190,21 @@ export default {
 	       this.mode = new L.Control.ModeControl(this.lang)
 	       this.mode.addTo(this.map)
        }
+       
        this.resize()
        //fitBounds after adding geotiffSerie else chrome do not zoom properly
        this.map.fitBounds(this.bounds)
        // this.$refs.geotiffControl.querySelector("#geotiffEye").dispatchEvent(event)
          
+    },
+    portrayalChange (portrayal) {
+       this.portrayal = portrayal || null
+       if (!this.colorscale) {
+         this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
+         this.colorscale.addTo(this.map)
+       } else {
+         this.colorscale.setPortrayal(portrayal)
+       }
     },
     handleError (response) {
       console.log(response)
@@ -220,6 +230,7 @@ export default {
       this.map.invalidateSize()
     },
     modeChange (evt) {
+     
       switch (evt.detail) {
       case 'video':
         this.graphMarkers.remove()
