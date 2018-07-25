@@ -1,5 +1,5 @@
 <template>
-<span class="formater-draggable-block">
+<span class="formater-draggable-block" v-show="visible">
 <span class="close fa fa-close" @click="close" v-if="closeEnabled"></span>
 <h4  @mousedown="movestart">{{title}}</h4>
 <slot></slot>
@@ -35,7 +35,8 @@ export default {
       top: 50,
       left: 50,
       closeEnabled: false,
-      layerId: null
+      layerId: null,
+      visible: false
 	}
   },
   watch: {
@@ -59,7 +60,7 @@ export default {
     },
     hide () {
       this.layerId = null
-      this.$el.style.display = 'none'
+      this.visible = false
     },
     close () {
       var event = new CustomEvent('closeBlockEvent', {detail: {blockId: this.id, layerId: this.layerId}})
@@ -82,7 +83,7 @@ export default {
         return
       }
       this.layerId = evt.detail.layerId
-      this.$el.style.display = 'block'
+      this.visible = true
       this.top = evt.detail.top + 12
       this.left = evt.detail.left + 2
       this.closeEnabled = evt.detail.closeEnabled
@@ -170,7 +171,6 @@ export default {
 	display:block;
 	border-radius:5px;
 	box-shadow: 0 1px 5px #888;
-	display:none;
 }
 .formater-draggable-block h4{
    margin: 0 0 10px 0;

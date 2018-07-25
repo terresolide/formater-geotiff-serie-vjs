@@ -19,7 +19,7 @@ import Map from './formater-map.vue';
 // problème quand je charge l'originale dans un autre répertoire avec i18n???
 import GeotiffSerieControl from './geotiff-serie-control.vue';
 
-import FormaterDraggableBlock from './formater-draggable-block.vue';
+// import FormaterDraggableBlock from './formater-draggable-block.vue';
 
 import FormaterGraph from './formater-graph.vue';
 // Add aeris-theme from other local repository!
@@ -49,7 +49,7 @@ ljs.load('dep', function() {
   Vue.customElement('aeris-theme', AerisTheme);
   Vue.customElement('geotiff-serie-control', GeotiffSerieControl);
 
-  Vue.customElement('formater-draggable-block', FormaterDraggableBlock)
+ // Vue.customElement('formater-draggable-block', FormaterDraggableBlock)
   Vue.customElement('formater-map', Map);
 	// Vue.customElement('formater-test', Test);
 })

@@ -1,5 +1,9 @@
 <template>
-<span class="formater-graph">
+<span class="formater-graph formater-draggable-block" v-show="visible">
+    <span class="formater-title">
+    <span class="close fa fa-close" @click="close" v-if="closeEnabled"></span>
+    <h4  @mousedown="movestart">{{title}}</h4>
+    </span>
 	<div class="chart"><i class="fa fa-spinner fa-spin" style="font-size:24px"></i></div>
 </span>
 </template>
@@ -7,16 +11,31 @@
 
 
 <script>
-/**
+/** 
+ * TROUBLE WHEN INCLUDE IN formater-draggable-block USING slot
+ * Its properties are initialized when formater-draggable-block is rerender
+ * then I create a graph draggable !!
+ 
  * @prop {String} id
- * @prop {String} uom unit of measurment (symbol)
- * @prop {String} lang language code, only 'fr' or 'en'
+ * @prop {String} uom - unit of measurment (symbol)
+ * @prop {String} lang - language code, only 'fr' or 'en'
+ * @prop {String} portrayal - the object portrayal to string
+ * @prop {String} title
  * @listens blockContentEvent     trigger when block content change (its data interest us)
  * @listens openBlockContent
  * @listens closeBlockContent     
  * @listens selectImageSerieEvent trigger when the image change as well as its date which interest us here.
  */
-var Highcharts = require('highcharts')
+ var Highcharts = require('highcharts');
+//Alternatively, this is how to load Highstock. Highmaps is similar.
+//var Highcharts = require('highcharts/highstock');
+
+//Load the exporting module, and initialize it.
+require('highcharts/modules/pattern-fill')(Highcharts);
+// Initialize exporting module.
+
+var plotty = require('plotty')
+
 export default {
   props:{
     id: {
@@ -31,24 +50,205 @@ export default {
       type: String,
       default: 'fr'
     },
-    min: {
-    	type: Number,
-    	default: null
+    portrayal: {
+      type: String,
+      default: null
     },
-    max: {
-    	type: Number,
-    	default: null
+    title: {
+      type: String,
+      default: 'title'
     }
   },
   data () {
 		return {
+		  // specific draggable block
+		  color: 'black',
+          aerisThemeListener: null,
+          mousemoveListener: null,
+          mouseupListener: null,
+          width: 300,
+          selected: false,
+          delta: {x: 0, y:0},
+          pos: {x:0, y:0},
+          top: 50,
+          left: 50,
+          closeEnabled: false,
+          layerId: null,
+          visible: false,
+          // both
 		  blockContentListener: null,
 		  closeBlockListener: null,
+		  // for the graph
 		  selectImageSerieListener: null,
-		  waiting: null
+		  waiting: null,
+		  canvas: null,
+		  pattern: null,
+		  coloredImage: null
 		}
   },
+  watch: {
+    portrayal (newvalue) {
+      
+      this.changePattern(newvalue)
+    },
+    // position
+    left (newval) {
+      this.$el.style.left = newval + 'px'
+    },
+    top (newval) {
+      this.$el.style.top = newval + 'px'
+    }
+   },
+//   computed: {
+//     pattern () {
+//         var pattern = JSON.parse(this.portrayal)
+//          plotty.renderColorScaleToCanvas(pattern.colorscale, this._canvas)
+//   	    console.log(this._canvas.toDataURL())
+//   	    this._colorImage = this._canvas.toDataURL()
+//         return pattern
+//     }
+//   },
+ 
   methods: {
+//     pattern () {
+//       JSON.parse(this.portrayal) 
+//     },
+    // for move the graph window
+     setColor (color) {
+      this.$el.querySelector('h4').style.color = color
+    },
+    handleTheme (theme) {
+      this.color = theme.detail.primary
+      if (this.$el) {
+        this.$el.style.width = this.width + 'px'
+        this.setColor(this.color)
+      }
+    },
+    hide () {
+      this.layerId = null
+      this.visible = false
+    },
+    close () {
+      var event = new CustomEvent('closeBlockEvent', {detail: {blockId: this.id, layerId: this.layerId}})
+      document.dispatchEvent(event)
+    },
+    enableClose (evt) {
+      // receive content
+      if (!this.visible && 
+          (evt.detail.layerId !== this.layerId && evt.detail.open))  {
+        //open
+        this.open(evt)
+      }
+      // enableClose if content corresponds to the layer
+      if (evt.detail.layerId === this.layerId) {
+        this.closeEnabled = true
+      }
+    },
+    open (evt) {
+      console.log('open')
+      if (evt.detail.blockId !== this.id){
+        return
+      }
+      this.layerId = evt.detail.layerId
+      this.visible = true
+      this.top = evt.detail.top + 12
+      this.left = evt.detail.left + 2
+      this.closeEnabled = evt.detail.closeEnabled
+    },
+    movestart (evt) {
+      this.selected = true
+      this.delta = {
+          x: this.pos.x - this.$el.offsetLeft,
+          y: this.pos.y - this.$el.offsetTop
+      }
+    },
+    move (evt) {
+      // console.log(evt)
+      this.pos.x = evt.clientX
+      this.pos.y = evt.clientY
+      if (this.selected) {
+      	this.left = this.pos.x - this.delta.x
+      	this.top = this.pos.y - this.delta.y
+      }
+    },
+    moveEnd () {
+      this.selected = false
+    },
+    
+    // for the graph
+    changePattern (newvalue) {
+      this.pattern = JSON.parse(newvalue)
+      console.log(this.pattern)
+      console.log('pattern new = ' + this.pattern.colorscale)
+        this.renderColorScaleToCanvas(this.pattern.colorscale, this.canvas)
+//       plotty.renderColorScaleToCanvas(this.pattern.colorscale, this.canvas)
+ 
+//     //  console.log(this.portrayal)
+// 	  this.coloredImage = this.canvas.toDataURL()
+	
+	  
+// 	  var ctx = this.canvas.getContext('2d')
+//  	   var data = ctx.getImageData(0, 0, 256, 1)
+//  	   console.log('passe ici')
+//  	   if( !this.canvas2){
+//  	   this.canvas2 = document.createElement('canvas')
+//  	   document.body.append(this.canvas2)
+//     }
+//  	   this.canvas2.width = 256
+//  	   this.canvas2.height = 256
+//  	  var ctx = this.canvas2.getContext('2d')
+// 	  ctx.save()
+	 
+	 
+// // 	  console.log(Math.PI)
+
+	  
+//       this.canvas2.style.width = "20px"
+//      this.canvas2.style.height = "100px"
+//        //ctx.drawImage(this.coloredImage,0,0, 256, 1);
+//        ctx.putImageData(data,0 , 0)
+// //       console.log(data)
+//      // ctx.putImageData(data,0 , 0)
+//        ctx.translate(255, 0);
+// 	  ctx.rotate( Math.PI / 2)
+// 	   ctx.fillRect(0, 0, 100, 30);
+//       ctx.putImageData(data,0 , 0)
+//       ctx.putImageData(data,1 , 50)
+//   	   ctx.restore()
+	
+	 //  this.canvas.height = 256
+// 	   this.canvas.style.width = "256px";
+//       this.canvas.style.height = "256px"
+	   // document.body.append(canvas2)
+    },
+    renderColorScaleToCanvas(name, canvas) {
+      /* eslint-disable no-param-reassign */
+      const csDef = plotty.colorscales[name];
+      canvas.width = 1;
+      
+      const ctx = canvas.getContext('2d');
+
+      if (Object.prototype.toString.call(csDef) === '[object Object]') {
+        canvas.height = 256;
+        const gradient = ctx.createLinearGradient(0, 0, 1, 256);
+
+        for (let i = 0; i < csDef.colors.length; ++i) {
+          gradient.addColorStop(csDef.positions[i], csDef.colors[i]);
+        }
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1, 256);
+      } else if (Object.prototype.toString.call(csDef) === '[object Uint8Array]') {
+        canvas.height = 256;
+        const imgData = ctx.createImageData(1, 256);
+        imgData.data.set(csDef);
+        ctx.putImageData(imgData, 0, 0);
+      } else {
+        throw new Error('Color scale not defined.');
+      }
+     
+      
+      /* eslint-enable no-param-reassign */
+    },
 	draw (evt) {
 	  var data = evt.detail.data
 	  if (data === null){
@@ -59,19 +259,27 @@ export default {
 	  data.forEach( function( item){
       	 var date = Date.parse(item.date);
       	 coord.push([date, item.value]);
-    })
-    var container = this.$el.querySelector('.chart')
-    var _this = this
-    var yAxis =  {
+      })
+      var container = this.$el.querySelector('.chart')
+
+      var yAxis =  {
           title: {
             text: ''
           },
           labels: {
             format: '{value:,.0f}'
           },
-          lineWidth: 2
+          lineWidth: 2,
+          min: this.pattern.displayMin,
+          max: this.pattern.displayMax
 	  }
-    this.chart = Highcharts.chart(container, {
+      this.createChart(container,coord, this.currentdate, yAxis, this.uom)
+      
+	},
+	createChart(container, data, currentdate, yAxis, uom){
+	  var _this = this
+	  this.chart = Highcharts.chart(container, {
+	    
       chart: {
         height: 200,
         marginBottom: 20,
@@ -109,35 +317,34 @@ export default {
           width: 2 // Width of the line    
         }]
       },
-      yAxis: {
-        title: {
-          text: ''
-        },
-        labels: {
-          format: '{value:,.0f}'
-        },
-        lineWidth: 2,
-        min: _this.min,
-        max: _this.max
-      },
+      yAxis: yAxis,
       legend: {
         enabled: false
       },
       tooltip: {
         headerFormat: '<b>{point.x:%e. %b %Y}</b><br>',
-        pointFormat: '{point.y:.2f} ' + this.uom
+        pointFormat: '{point.y:.2f} ' + uom
       },
       plotOptions: {
         spline: {
           marker: {
             enable: false
           }
+        },
+        area: {
+          fillColor: {
+            pattern: {
+              image: _this.coloredImage,
+              width: 1,
+              height: 256
+            }
+          }
         }
       },
       series: [{
         name: 'Valeur',
-        data: coord,
-        color: 'orange'
+        data: data,
+        color: 'black'
       }]
     })
 	},
@@ -168,8 +375,36 @@ export default {
       }
 	  this.$el.querySelector('.chart').innerHTML = this.waiting
 	},
-	open (evt){
-	  
+	setImageUrl (evt) {
+	  return;
+// 	  this.imageUrl = evt.detail
+// 	  this.pattern = {
+// 	      colorscale: 'jet',
+// 	      displayMin: -20,
+// 	      displayMax: 100
+// 	  }
+// 	  this._canvas = document.createElement('canvas')
+//     this._canvas.width = 256
+//     this._canvas.height = 1
+//     plotty.renderColorScaleToCanvas(this.pattern.colorscale, this._canvas)
+// 	  console.log(this._canvas.toDataURL())
+// 	  this._colorImage = this._canvas.toDataURL()
+	
+	},
+
+	yAxis () {
+	  console.log(this.pattern)
+	  return {
+        title: {
+          text: ''
+        },
+        labels: {
+          format: '{value:,.0f}'
+        },
+        lineWidth: 2,
+        min: this.pattern.displayMin,
+        max: this.pattern.displayMax
+      }
 	},
 	init () {
 	  this.waiting = this.$el.querySelector('.chart').innerHTML
@@ -190,19 +425,68 @@ export default {
           }
         });
 	  }
+	  console.log(this.portrayal)
+	  // this.pattern = JSON.parse(this.portrayal)
+	 
+	  if (!this.canvas) {
+	    this.canvas = document.createElement('canvas')
+        this.canvas.width = 1
+        this.canvas.height = 256
+        this.canvas.style.width = '256px'
+        this.canvas.style.height = '256px'
+        document.body.append(this.canvas)
+        
+	  }
+	  if (this.portrayal) {
+	    this.changePattern(this.portrayal)
+	  }
+	},
+	// the both
+	handleClose (event) {
+	  console.log('close')
+	  // destroy graph
+	  this.clear()
+	  //close
+	  this.hide()
+	},
+	handleContent (event) {
+	  // for the block 
+	  this.enableClose(event)
+	  // for  the graph draw
+	  this.draw(event)
+	},
+	handleOpen (event) {
+	  console.log('open')
+	  // only the block
+	  this.open(event)
 	}
   },
   created () {
-	this.blockContentListener = this.draw.bind(this) 
+   // console.log(this.portrayal)
+    this.mousemoveListener = this.move.bind(this)
+    document.addEventListener('mousemove', this.mousemoveListener)
+    this.mouseupListener = this.moveEnd.bind(this)
+    document.addEventListener('mouseup', this.mouseupListener)
+    
+	this.blockContentListener = this.handleContent.bind(this) 
     document.addEventListener('blockContentEvent', this.blockContentListener)
-    this.openBlockListener = this.open.bind(this) 
+    this.openBlockListener = this.handleOpen.bind(this) 
     document.addEventListener('openBlockEvent', this.openBlockListener)
-	this.closeBlockListener = this.clear.bind(this)
+	this.closeBlockListener = this.handleClose.bind(this)
     document.addEventListener('closeBlockEvent', this.closeBlockListener)
     this.selectImageSerieListener = this.placeLine.bind(this)
     document.addEventListener('selectImageSerieEvent', this.selectImageSerieListener)
+    
+      this.aerisThemeListener = this.handleTheme.bind(this) 
+    document.addEventListener('aerisTheme', this.aerisThemeListener)
+    
+    var event = new CustomEvent('aerisThemeRequest', {})
+    document.dispatchEvent(event);
+   // this.colorscaleImageListener = this.setImageUrl.bind(this)
+   // document.addEventListener('colorscaleImageEvent', this.colorscaleImageListener)
   },
   mounted: function(){
+    console.log('mounte formater-graph')
     this.init()
   },
   destroyed () {
@@ -214,6 +498,15 @@ export default {
     this.closeBlockListener = null
     document.removeEventListener('selectImageSerieEvent', this.selectImageSerieListener)
     this.selectImageSerieListener = null
+    
+    document.removeEventListener('mousemove', this.mousemoveListener)
+    this.mousemoveListener = null
+    document.removeEventListener('mouseup', this.mouseupListener)
+    this.mouseupListener = null
+    
+    document.removeEventListener('aerisTheme', this.aerisThemeListener)
+    this.aerisThemeListener = null
+ 
   }
 }
 </script>
@@ -221,5 +514,28 @@ export default {
 <style>
 .formater-graph .chart {
 	text-align:center
+}
+.formater-draggable-block{
+	position:absolute;
+	top:50px;
+	left:50px;
+	z-index:2000;
+	background:white;
+	min-width:300px;
+	min-height:100px;
+	padding:10px;
+	display:block;
+	border-radius:5px;
+	box-shadow: 0 1px 5px #888;
+}
+.formater-draggable-block h4{
+   margin: 0 0 10px 0;
+   cursor: move;
+}
+.formater-draggable-block span.close{
+	position:absolute;
+	top:2px;
+	right:2px;
+	cursor: pointer;
 }
 </style>

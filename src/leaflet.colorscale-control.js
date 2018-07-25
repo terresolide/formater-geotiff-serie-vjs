@@ -70,6 +70,9 @@ L.Control.ColorscaleControl = L.Control.extend({
       plotty.renderColorScaleToCanvas(this._colorscale, this._canvas)
       container.append(this._canvas)
  
+      // trigger event colorscaleImageEvent
+      var event = new CustomEvent('colorscaleImageEvent', {detail:this._canvas.toDataURL()})
+      document.dispatchEvent(event)
       //stop event propagation on container
       L.DomEvent.disableClickPropagation(container);
       L.DomEvent.on(container, 'wheel', L.DomEvent.stopPropagation);

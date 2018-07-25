@@ -20,8 +20,9 @@
 
 <template>
    <span class="formater-map">  
-      <formater-draggable-block ref="graph" id="graph" :title="$t('graphtitle')">
-      	  <formater-graph uom='cm' :lang="lang" min="-20" max="100"></formater-graph>
+   
+      <!--  <formater-draggable-block ref="graph" id="graph" :title="$t('graphtitle')">-->
+      	  <formater-graph id="graph" ref="graph" uom='cm'  :lang="lang" :portrayal="portrayalStr()"  :title="$t('graphtitle')"></formater-graph>
       </formater-draggable-block> 
     <div :id="id"></div>
  
@@ -81,13 +82,18 @@ export default {
               selectedMarker: null,
               api: null,
               // define the color legend
-              portrayal: null,
+              portrayal: {
+                colorscale: 'viridis',
+                displayMin: -10,
+                displayMax: 100
+              },
               graphWidth: 350,
               // L.GroupLayers of markers
               graphMarkers: null,
               //listeners
               searchProfileListener: null,
-              modeChangeListener:null
+              modeChangeListener:null,
+             // pattern: null
         }
   },
   created () {
@@ -98,6 +104,8 @@ export default {
     this.initFullscreen()
     this.initMap()
     this.getInfoSerie()
+    this.initPortrayal(this.portrayal)
+    //this.portrayalStr = JSON.stringify(this.portrayal)
     this.searchProfileListener = this.getProfile.bind(this)
     document.addEventListener('searchProfileEvent', this.searchProfileListener)
     this.modeChangeListener = this.modeChange.bind(this)
@@ -110,7 +118,30 @@ export default {
     document.removeEventListener('modeChangeEvent', this.modeChangeListener)
     this.modeChangeListener = null
   },
+  watch: {
+    portrayal (newvalue) {
+      //this.portrayalStr = JSON.stringify(newvalue)
+      console.log('portrayal change colorscale=' + newvalue.colorscale)
+      this.initPortrayal(newvalue)
+    }
+  },
+  computed: {
+   
+  },
   methods: {
+    portrayalStr () {
+      console.log('pattern change')
+      console.log(JSON.stringify(this.portrayal))
+      return JSON.stringify(this.portrayal)
+    },
+    initPortrayal (newvalue) {
+      if (!this.colorscale) {
+        this.colorscale = new L.Control.ColorscaleControl(newvalue)
+        this.colorscale.addTo(this.map)
+      } else {
+        this.colorscale.setPortrayal(newvalue)
+      }
+    },
     initMap () {
       // initialize the map
       var container = this.$el.querySelector("#" + this.id);
@@ -173,8 +204,8 @@ export default {
            [resp.body.bbox.north, resp.body.bbox.west], 
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
-       this.portrayalChange(resp.body.portrayal)
-       
+       // this.portrayalChange(resp.body.portrayal)
+       this.portrayal = resp.body.portrayal || this.portrayal
        this.api = resp.body.api || null
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
@@ -197,15 +228,17 @@ export default {
        // this.$refs.geotiffControl.querySelector("#geotiffEye").dispatchEvent(event)
          
     },
-    portrayalChange (portrayal) {
-       this.portrayal = portrayal || null
-       if (!this.colorscale) {
-         this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
-         this.colorscale.addTo(this.map)
-       } else {
-         this.colorscale.setPortrayal(portrayal)
-       }
-    },
+//     portrayalChange (portrayal) {
+       
+//        this.portrayal.colorscale = portrayal.colorscale
+//        if (!this.colorscale) {
+//          this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
+//          this.colorscale.addTo(this.map)
+//        } else {
+//          this.colorscale.setPortrayal(portrayal)
+//        }
+//        this.$forceUpdate()
+//     },
     handleError (response) {
       console.log(response)
     },
@@ -257,8 +290,7 @@ export default {
       this.graphMarkers.addLayer(marker)
 
       // open formater-draggable-block for graph
-       var point = this.map.latLngToContainerPoint(evt.detail)
-       console.log(point)
+      var point = this.map.latLngToContainerPoint(evt.detail)
       var event = new CustomEvent('openBlockEvent',
           {detail: {
             blockId: 'graph',

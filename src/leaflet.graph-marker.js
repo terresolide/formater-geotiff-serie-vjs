@@ -90,7 +90,6 @@ L.GraphMarker = L.Marker.extend({
     if (!this.options.api || !this.options.api.url) {
       this.data = {error: 'Aucune api n\'est définie'}
     } else {
-      console.log(this.options.api)
       var xhttp = new XMLHttpRequest(); 
       
       xhttp.responseType = "json";
