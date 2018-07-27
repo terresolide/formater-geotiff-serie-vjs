@@ -1,6 +1,6 @@
 {
   "name": "formater-geotiff-serie-vjs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Display geotiff serie on leaflet map using their png thumbnail",
   "preproduction": {
     "url": "https://rawgit.com/terresolide/"
@@ -37,6 +37,7 @@
     "babel-core": "^6.0.0",
     "babel-loader": "^6.0.0",
     "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
     "clean-webpack-plugin": "^0.1.19",
     "cross-env": "^3.0.0",
     "css-loader": "^0.25.0",

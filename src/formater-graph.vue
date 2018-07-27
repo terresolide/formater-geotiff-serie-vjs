@@ -82,8 +82,7 @@ export default {
 		  selectImageSerieListener: null,
 		  waiting: null,
 		  canvas: null,
-		  pattern: null,
-		  coloredImage: null
+		  pattern: null
 		}
   },
   watch: {
@@ -178,204 +177,154 @@ export default {
     // for the graph
     changePattern (newvalue) {
       this.pattern = JSON.parse(newvalue)
-      console.log(this.pattern)
-      console.log('pattern new = ' + this.pattern.colorscale)
-        this.renderColorScaleToCanvas(this.pattern.colorscale, this.canvas)
-//       plotty.renderColorScaleToCanvas(this.pattern.colorscale, this.canvas)
- 
-//     //  console.log(this.portrayal)
-// 	  this.coloredImage = this.canvas.toDataURL()
-	
-	  
-// 	  var ctx = this.canvas.getContext('2d')
-//  	   var data = ctx.getImageData(0, 0, 256, 1)
-//  	   console.log('passe ici')
-//  	   if( !this.canvas2){
-//  	   this.canvas2 = document.createElement('canvas')
-//  	   document.body.append(this.canvas2)
-//     }
-//  	   this.canvas2.width = 256
-//  	   this.canvas2.height = 256
-//  	  var ctx = this.canvas2.getContext('2d')
-// 	  ctx.save()
-	 
-	 
-// // 	  console.log(Math.PI)
-
-	  
-//       this.canvas2.style.width = "20px"
-//      this.canvas2.style.height = "100px"
-//        //ctx.drawImage(this.coloredImage,0,0, 256, 1);
-//        ctx.putImageData(data,0 , 0)
-// //       console.log(data)
-//      // ctx.putImageData(data,0 , 0)
-//        ctx.translate(255, 0);
-// 	  ctx.rotate( Math.PI / 2)
-// 	   ctx.fillRect(0, 0, 100, 30);
-//       ctx.putImageData(data,0 , 0)
-//       ctx.putImageData(data,1 , 50)
-//   	   ctx.restore()
-	
-	 //  this.canvas.height = 256
-// 	   this.canvas.style.width = "256px";
-//       this.canvas.style.height = "256px"
-	   // document.body.append(canvas2)
-    },
-    renderColorScaleToCanvas(name, canvas) {
-      /* eslint-disable no-param-reassign */
-      const csDef = plotty.colorscales[name];
-      canvas.width = 1;
-      
-      const ctx = canvas.getContext('2d');
-
-      if (Object.prototype.toString.call(csDef) === '[object Object]') {
-        canvas.height = 256;
-        const gradient = ctx.createLinearGradient(0, 0, 1, 256);
-
-        for (let i = 0; i < csDef.colors.length; ++i) {
-          gradient.addColorStop(csDef.positions[i], csDef.colors[i]);
-        }
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 1, 256);
-      } else if (Object.prototype.toString.call(csDef) === '[object Uint8Array]') {
-        canvas.height = 256;
-        const imgData = ctx.createImageData(1, 256);
-        imgData.data.set(csDef);
-        ctx.putImageData(imgData, 0, 0);
-      } else {
-        throw new Error('Color scale not defined.');
+      var canvas = document.createElement('canvas')
+      plotty.renderColorScaleToCanvas(this.pattern.colorscale, canvas)
+      if (!this.canvas) {
+        this.canvas = document.createElement('canvas')
+        this.canvas.width = 1
+ 	      this.canvas.height = 256
       }
-     
-      
-      /* eslint-enable no-param-reassign */
+      var ctx = this.canvas.getContext('2d')
+      ctx.save()
+      ctx.translate(0, 256)
+	    ctx.rotate(3*Math.PI / 2)
+      ctx.drawImage(canvas, 0, 0, 256, 1);
+      ctx.restore()
     },
-	draw (evt) {
-	  var data = evt.detail.data
-	  if (data === null){
-	    return
-	  }
-	  var currentdate = this.currentdate
-	  var coord = []
-	  data.forEach( function( item){
-      	 var date = Date.parse(item.date);
-      	 coord.push([date, item.value]);
+    coloredImage () {
+    	return this.canvas.toDataURL()
+    },
+	  draw (evt) {
+	    var data = evt.detail.data
+		  if (data === null){
+		    return
+		  }
+		  var currentdate = this.currentdate
+		  var coord = []
+		  data.forEach( function( item){
+	      	 var date = Date.parse(item.date);
+	      	 coord.push([date, item.value]);
+	      })
+	      var container = this.$el.querySelector('.chart')
+	
+	      var yAxis =  {
+	          title: {
+	            text: ''
+	          },
+	          labels: {
+	            format: '{value:,.0f}'
+	          },
+	          lineWidth: 2,
+	          floor: this.pattern.displayMin,
+	          ceiling: this.pattern.displayMax,
+	          min: this.pattern.displayMin,
+	          max: this.pattern.displayMax,
+	          tickPositions: [this.pattern.displayMin, 0, this.pattern.displayMax] //@todo calculer les positions des ticks
+		  }
+	      this.createChart(container,coord, this.currentdate, yAxis, this.uom)
+      
+		},
+		createChart(container, data, currentdate, yAxis, uom){
+		  var _this = this
+		  this.chart = Highcharts.chart(container, {
+		    
+	      chart: {
+	        height: 200,
+	        marginBottom: 20,
+	        type: 'area',
+	        events: {
+	 	       click: function (event) {
+	 	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
+	 	         document.dispatchEvent(evt)
+	 	       }
+	          }
+	        // width: width
+	      },
+	      credits: {
+	        enabled: false
+	      },
+	      title: {
+	        text: '',
+	        margin: 0
+	      },
+	      xAxis: {
+	        type: 'datetime',
+	        dateTimeLabelFormats: { // don't display the dummy year
+	            month: '%e %b %Y',
+	            year: '%b %Y'
+	        },
+	        title: {
+	            text: 'Date'
+	        },
+	        plotLines: [{
+	          color: 'red', // Color value
+	         // dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+	          value: currentdate,
+	          id: 'currentdate',
+	          zIndex: 20,
+	          width: 2 // Width of the line    
+	        }]
+	      },
+	      yAxis: yAxis,
+	      legend: {
+	        enabled: false
+	      },
+	      tooltip: {
+	        headerFormat: '<b>{point.x:%e. %b %Y}</b><br>',
+	        pointFormat: '{point.y:.2f} ' + uom
+	      },
+	      plotOptions: {
+	        spline: {
+	          marker: {
+	            enable: false
+	          }
+	        },
+	        area: {
+	          fillColor: {
+	            pattern: {
+	              image: _this.coloredImage(),
+	              width: 1,
+	              height:200, //@todo calculer la taille du fond
+	              color: '#FF4500',
+	            }
+	          }
+	        }
+	      },
+	      series: [{
+	        name: 'Valeur',
+	        data: data,
+	        color: 'black'
+	      }]
       })
-      var container = this.$el.querySelector('.chart')
-
-      var yAxis =  {
-          title: {
-            text: ''
-          },
-          labels: {
-            format: '{value:,.0f}'
-          },
-          lineWidth: 2,
-          min: this.pattern.displayMin,
-          max: this.pattern.displayMax
-	  }
-      this.createChart(container,coord, this.currentdate, yAxis, this.uom)
-      
-	},
-	createChart(container, data, currentdate, yAxis, uom){
-	  var _this = this
-	  this.chart = Highcharts.chart(container, {
-	    
-      chart: {
-        height: 200,
-        marginBottom: 20,
-        type: 'area',
-        events: {
- 	       click: function (event) {
- 	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
- 	         document.dispatchEvent(evt)
- 	       }
-          }
-        // width: width
-      },
-      credits: {
-        enabled: false
-      },
-      title: {
-        text: '',
-        margin: 0
-      },
-      xAxis: {
-        type: 'datetime',
-        dateTimeLabelFormats: { // don't display the dummy year
-            month: '%e %b %Y',
-            year: '%b %Y'
-        },
-        title: {
-            text: 'Date'
-        },
-        plotLines: [{
-          color: 'red', // Color value
-         // dashStyle: 'longdashdot', // Style of the plot line. Default to solid
-          value: currentdate,
-          id: 'currentdate',
-          zIndex: 20,
-          width: 2 // Width of the line    
-        }]
-      },
-      yAxis: yAxis,
-      legend: {
-        enabled: false
-      },
-      tooltip: {
-        headerFormat: '<b>{point.x:%e. %b %Y}</b><br>',
-        pointFormat: '{point.y:.2f} ' + uom
-      },
-      plotOptions: {
-        spline: {
-          marker: {
-            enable: false
-          }
-        },
-        area: {
-          fillColor: {
-            pattern: {
-              image: _this.coloredImage,
-              width: 1,
-              height: 256
-            }
-          }
-        }
-      },
-      series: [{
-        name: 'Valeur',
-        data: data,
-        color: 'black'
-      }]
-    })
-	},
-	placeLine (evt) {
-	  // this.chart.xAxis[0].removePlotLine(this.currentdate)
-	  this.currentdate = Date.parse(evt.detail.date)
-	  // this.chart.xAxis[0].removePlotLine()
-	  var currentdate = this.currentdate
-	  if (this.chart && this.chart.xAxis) {
-		  this.chart.xAxis[0].update( {
-		    plotLines: [{
-	      		color: 'red', // Color value
-	       		value: currentdate,
-	       		id: 'currentdate',
-	       		zIndex: 20,
-	       		width: 2 // Width of the line    
-	     	}]
-		  })
-	  }
-	},
-	clear () {
-      if (this.chart) {
-    	  if (Highcharts.charts[0] !== undefined) {
-    		  Highcharts.charts[0].destroy();
-    		  Highcharts.charts.splice(0, 1);
-    		  }
-        // this.chart.destroy()
-      }
-	  this.$el.querySelector('.chart').innerHTML = this.waiting
-	},
-	setImageUrl (evt) {
+	  },
+	  placeLine (evt) {
+		  // this.chart.xAxis[0].removePlotLine(this.currentdate)
+		  this.currentdate = Date.parse(evt.detail.date)
+		  // this.chart.xAxis[0].removePlotLine()
+		  var currentdate = this.currentdate
+		  if (this.chart && this.chart.xAxis) {
+			  this.chart.xAxis[0].update( {
+			    plotLines: [{
+		      		color: 'red', // Color value
+		       		value: currentdate,
+		       		id: 'currentdate',
+		       		zIndex: 20,
+		       		width: 2 // Width of the line    
+		     	}]
+			  })
+		  }
+		},
+		clear () {
+	      if (this.chart) {
+	    	  if (Highcharts.charts[0] !== undefined) {
+	    		  Highcharts.charts[0].destroy();
+	    		  Highcharts.charts.splice(0, 1);
+	    		  }
+	        // this.chart.destroy()
+	      }
+		  this.$el.querySelector('.chart').innerHTML = this.waiting
+		},
+		setImageUrl (evt) {
 	  return;
 // 	  this.imageUrl = evt.detail
 // 	  this.pattern = {
@@ -392,74 +341,74 @@ export default {
 	
 	},
 
-	yAxis () {
-	  console.log(this.pattern)
-	  return {
-        title: {
-          text: ''
-        },
-        labels: {
-          format: '{value:,.0f}'
-        },
-        lineWidth: 2,
-        min: this.pattern.displayMin,
-        max: this.pattern.displayMax
-      }
-	},
-	init () {
-	  this.waiting = this.$el.querySelector('.chart').innerHTML
-	  if(this.lang === "fr"){
-        Highcharts.setOptions({
-          lang: {
-            months: [
-              'Janvier', 'Février', 'Mars', 'Avril',
-              'Mai', 'Juin', 'Juillet', 'Août',
-              'Septembre', 'Octobre', 'Novembre', 'Décembre'
-            ],
-            weekdays: [
-              'Dimanche', 'Lundi', 'Mardi', 'Mercredi',
-              'Jeudi', 'Vendredi', 'Samedi'
-            ],
-            shortMonths: ["Janv." , "Févr." , "Mars" , "Avr." , "Mai" , 
-              "Juin" , "Juill." , "Août" , "Sept." , "Oct." , "Nov." , "Déc."]
-          }
-        });
-	  }
-	  console.log(this.portrayal)
-	  // this.pattern = JSON.parse(this.portrayal)
-	 
-	  if (!this.canvas) {
-	    this.canvas = document.createElement('canvas')
-        this.canvas.width = 1
-        this.canvas.height = 256
-        this.canvas.style.width = '256px'
-        this.canvas.style.height = '256px'
-        document.body.append(this.canvas)
-        
-	  }
-	  if (this.portrayal) {
-	    this.changePattern(this.portrayal)
-	  }
-	},
-	// the both
-	handleClose (event) {
-	  console.log('close')
-	  // destroy graph
-	  this.clear()
-	  //close
-	  this.hide()
-	},
-	handleContent (event) {
-	  // for the block 
-	  this.enableClose(event)
-	  // for  the graph draw
-	  this.draw(event)
-	},
-	handleOpen (event) {
-	  console.log('open')
-	  // only the block
-	  this.open(event)
-	}
+		yAxis () {
+		  console.log(this.pattern)
+		  return {
+	        title: {
+	          text: ''
+	        },
+	        labels: {
+	          format: '{value:,.0f}'
+	        },
+	        lineWidth: 2,
+	        min: this.pattern.displayMin,
+	        max: this.pattern.displayMax
+	      }
+		},
+		init () {
+		  this.waiting = this.$el.querySelector('.chart').innerHTML
+		  if(this.lang === "fr"){
+	        Highcharts.setOptions({
+	          lang: {
+	            months: [
+	              'Janvier', 'Février', 'Mars', 'Avril',
+	              'Mai', 'Juin', 'Juillet', 'Août',
+	              'Septembre', 'Octobre', 'Novembre', 'Décembre'
+	            ],
+	            weekdays: [
+	              'Dimanche', 'Lundi', 'Mardi', 'Mercredi',
+	              'Jeudi', 'Vendredi', 'Samedi'
+	            ],
+	            shortMonths: ["Janv." , "Févr." , "Mars" , "Avr." , "Mai" , 
+	              "Juin" , "Juill." , "Août" , "Sept." , "Oct." , "Nov." , "Déc."]
+	          }
+	        });
+		  }
+		  console.log(this.portrayal)
+		  // this.pattern = JSON.parse(this.portrayal)
+		 
+// 		  if (!this.canvas) {
+// 		    this.canvas = document.createElement('canvas')
+// 	        this.canvas.width = 1
+// 	        this.canvas.height = 256
+// 	        this.canvas.style.width = '256px'
+// 	        this.canvas.style.height = '256px'
+// 	        document.body.append(this.canvas)
+	        
+// 		  }
+		  if (this.portrayal) {
+		    this.changePattern(this.portrayal)
+		  }
+		},
+		// the both
+		handleClose (event) {
+		  console.log('close')
+		  // destroy graph
+		  this.clear()
+		  //close
+		  this.hide()
+		},
+		handleContent (event) {
+		  // for the block 
+		  this.enableClose(event)
+		  // for  the graph draw
+		  this.draw(event)
+		},
+		handleOpen (event) {
+		  console.log('open')
+		  // only the block
+		  this.open(event)
+		}
   },
   created () {
    // console.log(this.portrayal)
