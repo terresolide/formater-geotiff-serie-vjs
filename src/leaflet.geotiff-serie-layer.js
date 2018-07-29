@@ -1,14 +1,14 @@
 /**
- *  Geotiff serie layer is an interactive ImageOverlay
- *  @parameter bounds a latlng bounds
- *  @parameter 
+ *  Geotiff serie layer is an interactive ImageOverlay to display imageOverlay serie having the same bounds
+ *  @parameter {L.LatLngBoundsbounds} bbox of the image
+ *  @parameter {Boolean} api true if exist an api to request with latlng localisation when click
  *  @listen    selectImageSerieEvent => change url image
  *  @listen    toggleImageSerieEvent => show/hide overlay
- *  @listen    resetGeotiffViewEvent
+ *  @listen    resetGeotiffViewEvent => map fit bounds overlay
  *  @listen    modeChangeEvent (mode pass from video to profile)
  *  @trigger   searchProfileEvent 
  *  @trigger   nextImageEvent
- *  @requires   leaflet
+ *  @requires  leaflet
  */
 
 L.GeotiffSerieLayer = L.ImageOverlay.extend({
@@ -28,7 +28,7 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     if (!options){
         options = {}
     }
-    this.api = api
+    this.hasApi = api
     L.Util.setOptions(this, options);
     L.ImageOverlay.prototype.initialize.call(this, url, bounds, options);
   },
@@ -44,8 +44,9 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     this.click = 0
     this.on( 'click', function(evt){
       this.click = this.click + 1
-      _this = this
-      setTimeout(function() {_this.click = 0},500)
+      var _this = this
+      // to prevent dblclick particulary for searchProfile request
+      setTimeout(function () {_this.click = 0}, 500)
       if(this.click !== 1){
         return
       }
@@ -55,7 +56,7 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
         document.dispatchEvent(event)
         break
       case 'profile':
-        if (!_this.api) {
+        if (!_this.hasApi) {
           return;
         }
         var event = new CustomEvent('searchProfileEvent', {detail: evt.latlng})
@@ -65,7 +66,6 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     });
     
     this.on( 'dblclick', function( evt){
-
       this.removeEventParent(evt);
     })
     L.DomEvent.on(document, 'selectImageSerieEvent', this._selectImage, this)

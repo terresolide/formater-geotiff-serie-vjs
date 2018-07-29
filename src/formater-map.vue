@@ -211,7 +211,7 @@ export default {
        this.map.addControl(reset)
       
      
-       this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds, this.api)
+       this.geotiffSerie = new L.GeotiffSerieLayer(this.bounds, this.api != null)
        this.geotiffSerie.addTo(this.map)
        
        if (resp.body.example) {
