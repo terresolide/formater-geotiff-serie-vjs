@@ -4,6 +4,7 @@ var PACKAGE = require('./package.json');
 var buildVersion = PACKAGE.version;
 var buildName = PACKAGE.name;
 var CleanWebpackPlugin = require('clean-webpack-plugin');
+var UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 var preUrl = PACKAGE.preproduction.url + buildName + "/master/webcomponents/";
 var prodUrl = PACKAGE.production.url + buildName + "/" + buildVersion + "/dist/";
 
@@ -33,9 +34,6 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-		query:{
-          presets: ['es2015']
-		},
         exclude: /node_modules/
       },
      
@@ -76,11 +74,12 @@ if (process.env.NODE_ENV === 'production') {
       }
     }),
     new CleanWebpackPlugin(pathsToClean),
-    new webpack.optimize.UglifyJsPlugin({
+   // new webpack.optimize.UglifyJsPlugin({
+	new UglifyJsPlugin({
       sourceMap: true,
-      compress: {
-        warnings: false
-      }
+    //  compress: {
+    //    warnings: false
+    //  }
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
@@ -104,11 +103,12 @@ if (process.env.NODE_ENV === 'preproduction') {
         }
       }),
       new CleanWebpackPlugin(["webcomponents/*.*"]),
-      new webpack.optimize.UglifyJsPlugin({
+     // new webpack.optimize.UglifyJsPlugin({
+  	new UglifyJsPlugin({
         sourceMap: true,
-        compress: {
-          warnings: false
-        }
+//        compress: {
+//          warnings: false
+//        }
       }),
       new webpack.LoaderOptionsPlugin({
         minimize: true
