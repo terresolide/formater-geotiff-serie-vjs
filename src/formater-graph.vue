@@ -151,7 +151,6 @@ export default {
       }
     },
     open (evt) {
-      console.log('open')
       if (evt.detail.blockId !== this.id){
         return
       }
@@ -332,6 +331,16 @@ export default {
 	              color: '#FF4500',
 	            }
 	          }
+	        },
+	        series: {
+	          point: {
+                events: {
+                  click: function () {
+                    var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', this.x)})
+       	 	         document.dispatchEvent(evt)
+                  }
+                }
+              }
 	        }
 	      },
 	      series: [{
@@ -436,7 +445,6 @@ export default {
 		},
 		// the both
 		handleClose (event) {
-		  console.log('close')
 		  // destroy graph
 		  this.clear()
 		  //close
