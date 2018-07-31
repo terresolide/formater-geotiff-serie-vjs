@@ -110,7 +110,7 @@ L.GraphMarker = L.Marker.extend({
      }
     //  xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
      xhttp.open("GET", encodeURI( this.request() ), true);
-     xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+   //  xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
      xhttp.send();
     }
   },

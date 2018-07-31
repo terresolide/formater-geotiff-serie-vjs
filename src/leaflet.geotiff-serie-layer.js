@@ -66,6 +66,7 @@ L.GeotiffSerieLayer = L.ImageOverlay.extend({
     });
     
     this.on( 'dblclick', function( evt){
+      console.log('dblclik')
       this.removeEventParent(evt);
     })
     L.DomEvent.on(document, 'selectImageSerieEvent', this._selectImage, this)
