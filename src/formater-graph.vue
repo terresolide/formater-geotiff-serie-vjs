@@ -30,6 +30,13 @@
 //Alternatively, this is how to load Highstock. Highmaps is similar.
 //var Highcharts = require('highcharts/highstock');
 
+// array [red, green, blue] to hexadecimal color
+Array.prototype.rgb2hex = function () {
+  return '#' + this.map(function (x) {
+    var hex = x.toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
 //Load the exporting module, and initialize it.
 require('highcharts/modules/pattern-fill')(Highcharts);
 // Initialize exporting module.
@@ -177,22 +184,59 @@ export default {
     // for the graph
     changePattern (newvalue) {
       this.pattern = JSON.parse(newvalue)
+      
+      // generate image 256 * 1 of the colorscale in a canvas
       var canvas = document.createElement('canvas')
       plotty.renderColorScaleToCanvas(this.pattern.colorscale, canvas)
+      
+      // Prepare the colored rectangles for values inferior to displayMin and values superior to displayMax
+      
+      var size = 256
+      var h1 = 0
+      var h2 = 256
+      var rate = 256 / (this.pattern.displayMax - this.pattern.displayMin)
+      //compute size 
+      if (this.pattern.max > this.pattern.displayMax || this.pattern.displayMin > this.pattern.min) {
+        var size = Math.max(this.pattern.max, this.pattern.displayMax) - Math.min(this.pattern.min, this.pattern.displayMin)
+        size = Math.round(size * rate)
+      }
+      if (this.pattern.min < this.pattern.displayMin) {
+        h1 = Math.round((this.pattern.displayMin - this.pattern.min) * rate)
+        h2 += h1
+      }
+     
       if (!this.canvas) {
         this.canvas = document.createElement('canvas')
         this.canvas.width = 1
- 	      this.canvas.height = 256
       }
+ 	  this.canvas.height = size
+ 	  if (Object.prototype.toString.call(plotty.colorscales[this.pattern.colorscale]) === '[object Object]') {
+        var colors = plotty.colorscales[this.pattern.colorscale].colors
+ 	  } else if (Object.prototype.toString.call(plotty.colorscales[this.pattern.colorscale]) === '[object Uint8Array]') {
+ 	    var colors = []
+ 	    var length = plotty.colorscales[this.pattern.colorscale].length
+ 	    var color1 = Array.from(plotty.colorscales[this.pattern.colorscale].slice(0, 3))
+ 	    var color2 = Array.from(plotty.colorscales[this.pattern.colorscale].slice(length - 4, length - 1))
+ 	    colors[0] = color1.rgb2hex()
+ 	    colors[1] = color2.rgb2hex()
+ 	  }
       var ctx = this.canvas.getContext('2d')
       ctx.save()
-      ctx.translate(0, 256)
-	    ctx.rotate(3*Math.PI / 2)
-      ctx.drawImage(canvas, 0, 0, 256, 1);
+      ctx.translate(0, size)
+	  ctx.rotate(3 * Math.PI / 2)
+	  ctx.fillStyle = colors[0]
+	  ctx.fillRect(0, 0, h1, 1)
+      ctx.drawImage(canvas, h1, 0, 256, 1)
+      ctx.fillStyle = colors[colors.length - 1]
+ 	  ctx.fillRect(h2, 0, size - h2, 1)
       ctx.restore()
     },
     coloredImage () {
-    	return this.canvas.toDataURL()
+        if (this.canvas) {
+    	  return this.canvas.toDataURL()
+        } else {
+          return null
+        }
     },
 	  draw (evt) {
 	    var data = evt.detail.data
@@ -217,9 +261,9 @@ export default {
 	          lineWidth: 2,
 	          floor: this.pattern.displayMin,
 	          ceiling: this.pattern.displayMax,
-	          min: this.pattern.displayMin,
-	          max: this.pattern.displayMax,
-	          tickPositions: [this.pattern.displayMin, 0, this.pattern.displayMax] //@todo calculer les positions des ticks
+	          min: this.pattern.min,
+	          max: this.pattern.max,
+	          tickPositions: [this.pattern.min, this.pattern.displayMin, 0, this.pattern.displayMax, this.pattern.max] //@todo calculer les positions des ticks
 		  }
 	      this.createChart(container,coord, this.currentdate, yAxis, this.uom)
       
