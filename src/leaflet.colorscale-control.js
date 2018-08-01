@@ -5,11 +5,10 @@
  * @requires plotty
  * @requires leaflet
  */
-  var plotty = require('plotty')
+ // plotty is loaded globally
+ // var plotty = require('plotty')
 
-if (typeof L === 'undefined'){
-  var L = require('leaflet')
-}
+
 L.Control.ColorscaleControl = L.Control.extend({
     options: {
         position: 'bottomright',

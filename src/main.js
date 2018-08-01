@@ -1,29 +1,30 @@
 require("exports-loader?!./l.min.js")
 
-import Vue from 'vue';
+import Vue from 'vue'
 
-import vueCustomElement from 'vue-custom-element';
+import vueCustomElement from 'vue-custom-element'
 Vue.use(vueCustomElement);
 
 //pour la traduction 
-import VueI18n from 'vue-i18n';
+import VueI18n from 'vue-i18n'
 Vue.use(VueI18n);
 
-import VueResource from 'vue-resource';
+import VueResource from 'vue-resource'
 Vue.use(VueResource);
 
-import Map from './formater-map.vue';
+import Map from './formater-map.vue'
 // import Test from './formater-test.vue';
 
 //@todo factoriser -  Il s'agit du même composant (une copie) que dans formater-catalogue-component-vjs 
 // problème quand je charge l'originale dans un autre répertoire avec i18n???
-import GeotiffSerieControl from './geotiff-serie-control.vue';
+import GeotiffSerieControl from './geotiff-serie-control.vue'
 
 // import FormaterDraggableBlock from './formater-draggable-block.vue';
 
-import FormaterGraph from './formater-graph.vue';
+import FormaterGraph from './formater-graph.vue'
 // Add aeris-theme from other local repository!
-import AerisTheme from '../../aeris-commons-components-vjs/src/aeris-theme/aeris-theme.vue';
+import AerisTheme from '../../aeris-commons-components-vjs/src/aeris-theme/aeris-theme.vue'
+
 
 ljs.addAliases({
     dep: [
@@ -37,6 +38,9 @@ ljs.addAliases({
        //leaflet css
        //------------
        'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/leaflet.css',
+       // add plotty globaly
+       //----------------
+       'https://api.poleterresolide.fr/lib/plotty/plotty.min.js',
        //regiter element
        //-------------
        'https://cdnjs.cloudflare.com/ajax/libs/document-register-element/1.4.1/document-register-element.js',
@@ -45,11 +49,11 @@ ljs.addAliases({
       ]
 })
 ljs.load('dep', function() {
-  Vue.customElement('formater-graph', FormaterGraph);
-  Vue.customElement('aeris-theme', AerisTheme);
-  Vue.customElement('geotiff-serie-control', GeotiffSerieControl);
+  Vue.customElement('formater-graph', FormaterGraph)
+  Vue.customElement('aeris-theme', AerisTheme)
+  Vue.customElement('geotiff-serie-control', GeotiffSerieControl)
   // Vue.customElement('formater-draggable-block', FormaterDraggableBlock)
-  Vue.customElement('formater-map', Map);
+  Vue.customElement('formater-map', Map)
   // Vue.customElement('formater-test', Test);
 })
 

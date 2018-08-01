@@ -38,10 +38,12 @@ Array.prototype.rgb2hex = function () {
   }).join('')
 }
 //Load the exporting module, and initialize it.
-require('highcharts/modules/pattern-fill')(Highcharts);
+require('highcharts/modules/pattern-fill')(Highcharts)
+
 // Initialize exporting module.
 
-var plotty = require('plotty')
+// plotty is loaded globally in main.js
+// var plotty = require('plotty')
 
 export default {
   props:{
