@@ -64,6 +64,10 @@ export default {
     title: {
       type: String,
       default: 'title'
+    },
+    graphwidth: {
+      type: Number,
+      default: 300
     }
   },
   data () {
@@ -86,6 +90,7 @@ export default {
 		  blockContentListener: null,
 		  closeBlockListener: null,
 		  // for the graph
+		  chart: null,
 		  selectImageSerieListener: null,
 		  waiting: null,
 		  canvas: null,
@@ -94,7 +99,6 @@ export default {
   },
   watch: {
     portrayal (newvalue) {
-      
       this.changePattern(newvalue)
     },
     // position
@@ -103,7 +107,13 @@ export default {
     },
     top (newval) {
       this.$el.style.top = newval + 'px'
-    }
+    },
+    graphwidth (newval) {
+      this.$el.style.width = newval + 'px'
+      if (this.chart) {
+        this.chart.setSize(newval, null)
+      }
+    } 
    },
 //   computed: {
 //     pattern () {
@@ -120,6 +130,9 @@ export default {
 //       JSON.parse(this.portrayal) 
 //     },
     // for move the graph window
+    /**
+    * Methods for draggable div
+    */
      setColor (color) {
       this.$el.querySelector('h4').style.color = color
     },
@@ -154,6 +167,7 @@ export default {
       if (evt.detail.blockId !== this.id){
         return
       }
+      this.$el.style.width = this.graphwidth + 'px'
       this.layerId = evt.detail.layerId
       this.visible = true
       this.top = evt.detail.top + 12
@@ -179,15 +193,25 @@ export default {
     moveEnd () {
       this.selected = false
     },
-    
-    // for the graph
+    /**
+    * methods for the graph
+    */
     changePattern (newvalue) {
+      if (newvalue == 'null') {
+        this.pattern = null
+        return
+      }
       this.pattern = JSON.parse(newvalue)
       
       // generate image 256 * 1 of the colorscale in a canvas
       var canvas = document.createElement('canvas')
       plotty.renderColorScaleToCanvas(this.pattern.colorscale, canvas)
       
+      // create a second canvas where display our background graph colorscale
+       if (!this.canvas) {
+        this.canvas = document.createElement('canvas')
+        this.canvas.width = 1
+      }
       // Prepare the colored rectangles for values inferior to displayMin and values superior to displayMax
       
       var size = 256
@@ -195,20 +219,20 @@ export default {
       var h2 = 256
       var rate = 256 / (this.pattern.displayMax - this.pattern.displayMin)
       //compute size 
-      if (this.pattern.max > this.pattern.displayMax || this.pattern.displayMin > this.pattern.min) {
-        var size = Math.max(this.pattern.max, this.pattern.displayMax) - Math.min(this.pattern.min, this.pattern.displayMin)
-        size = Math.round(size * rate)
-      }
-      if (this.pattern.min < this.pattern.displayMin) {
-        h1 = Math.round((this.pattern.displayMin - this.pattern.min) * rate)
-        h2 += h1
+      if (this.pattern.max && this.pattern.min) {
+	      if (this.pattern.max > this.pattern.displayMax || this.pattern.displayMin > this.pattern.min) {
+	        var size = Math.max(this.pattern.max, this.pattern.displayMax) - Math.min(this.pattern.min, this.pattern.displayMin)
+	        size = Math.round(size * rate)
+	      }
+	      if (this.pattern.min < this.pattern.displayMin) {
+	        h1 = Math.round((this.pattern.displayMin - this.pattern.min) * rate)
+	        h2 += h1
+	      }
       }
      
-      if (!this.canvas) {
-        this.canvas = document.createElement('canvas')
-        this.canvas.width = 1
-      }
  	  this.canvas.height = size
+ 	  
+ 	  // search first and last color
  	  if (Object.prototype.toString.call(plotty.colorscales[this.pattern.colorscale]) === '[object Object]') {
         var colors = plotty.colorscales[this.pattern.colorscale].colors
  	  } else if (Object.prototype.toString.call(plotty.colorscales[this.pattern.colorscale]) === '[object Uint8Array]') {
@@ -219,15 +243,24 @@ export default {
  	    colors[0] = color1.rgb2hex()
  	    colors[1] = color2.rgb2hex()
  	  }
+ 	  
+ 	  // draw background
       var ctx = this.canvas.getContext('2d')
       ctx.save()
+      // Plotty draw the color scale in width so we rotate to get it in height
       ctx.translate(0, size)
 	  ctx.rotate(3 * Math.PI / 2)
-	  ctx.fillStyle = colors[0]
-	  ctx.fillRect(0, 0, h1, 1)
+	  if (h1 > 0) {
+	    // draw a first uniform colored rectangle for data inferior to displayMin
+		ctx.fillStyle = colors[0]
+		ctx.fillRect(0, 0, h1, 1)
+      }
       ctx.drawImage(canvas, h1, 0, 256, 1)
-      ctx.fillStyle = colors[colors.length - 1]
- 	  ctx.fillRect(h2, 0, size - h2, 1)
+      if (h2 < size) {
+        // draw an uniform colored rectangle for data superior to displayMax
+        ctx.fillStyle = colors[colors.length - 1]
+ 	    ctx.fillRect(h2, 0, size - h2, 1)
+      }
       ctx.restore()
     },
     coloredImage () {
@@ -237,75 +270,99 @@ export default {
           return null
         }
     },
-	  draw (evt) {
-	    var data = evt.detail.data
-		  if (data === null){
-		    return
-		  }
-		  var currentdate = this.currentdate
-		  var coord = []
-		  data.forEach( function( item){
-	      	 var date = Date.parse(item.date);
-	      	 coord.push([date, item.value]);
-	      })
-	      var container = this.$el.querySelector('.chart')
-	
-	      var yAxis =  {
-	          title: {
-	            text: ''
-	          },
-	          labels: {
-	            format: '{value:,.0f}'
-	          },
-	          lineWidth: 2,
-	          floor: this.pattern.displayMin,
-	          ceiling: this.pattern.displayMax,
-	          min: this.pattern.min,
-	          max: this.pattern.max,
-	          tickPositions: [this.pattern.min, this.pattern.displayMin, 0, this.pattern.displayMax, this.pattern.max] //@todo calculer les positions des ticks
-		  }
-	      this.createChart(container,coord, this.currentdate, yAxis, this.uom)
+	draw (evt) {
+      var data = evt.detail.data
+      if (data === null){
+        return
+      }
+      var currentdate = this.currentdate
+      var coord = []
+      data.forEach( function( item){
+     	 var date = Date.parse(item.date);
+     	 coord.push([date, item.value]);
+      })
+      var container = this.$el.querySelector('.chart')
+
+      var yAxis =  {
+        title: {
+          text: ''
+        },
+        labels: {
+          format: '{value:,.0f}'
+        },
+        lineWidth: 1     
+      }
+      if (this.pattern) {
+        yAxis.floor = this.pattern.displayMin
+        yAxis.ceiling = this.pattern.displayMax
+        yAxis.min = this.pattern.min
+        yAxis.max =  this.pattern.max
+        yAxis.tickPositions = this.createTicksPositions()   
+      }
       
-		},
-		createChart(container, data, currentdate, yAxis, uom){
-		  var _this = this
-		  this.chart = Highcharts.chart(container, {
-		    
-	      chart: {
-	        height: 200,
-	        marginBottom: 20,
-	        type: 'area',
-	        events: {
-	 	       click: function (event) {
-	 	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
-	 	         document.dispatchEvent(evt)
-	 	       }
-	          }
-	        // width: width
-	      },
-	      credits: {
-	        enabled: false
+      this.createChart(container,coord, this.currentdate, yAxis, this.uom)  
+    },
+    createTicksPositions () {
+      // Only if this.pattern
+      if (!this.pattern) {
+        return 'undefined'
+      }
+      var positions = [this.pattern.displayMin, this.pattern.displayMax]
+      if (typeof this.pattern.min !== 'undefined') {
+        positions.push(this.pattern.min)
+      }
+      if (typeof this.pattern.max != 'undefined') {
+        positions.push(this.pattern.max)
+      }
+      if (this.pattern.displayMin * this.pattern.displayMax <0 || 
+          (this.pattern.displayMin * this.pattern.displayMax !== 0 && 
+              this.pattern.min && this.pattern.max && this.pattern.min * this.pattern.max < 0 )) {
+        positions.push(0)
+      }
+     positions.sort(function (x1, x2) {
+       return x2 < x1
+     })
+     return positions
+    },
+	createChart(container, data, currentdate, yAxis, uom){
+	  var _this = this
+	  this.chart = Highcharts.chart(container, {
+	    
+      chart: {
+        height: 200,
+        marginBottom: 20,
+        type: 'area',
+        events: {
+ 	       click: function (event) {
+ 	         var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', event.xAxis[0].value)})
+ 	         document.dispatchEvent(evt)
+ 	       }
+          }
+        // width: width
+        },
+	    credits: {
+	      enabled: false
+	    },
+	    title: {
+	      text: '',
+	      margin: 0
+	    },
+	    xAxis: {
+	      type: 'datetime',
+	      dateTimeLabelFormats: { // don't display the dummy year
+	          month: '%e %b %Y',
+	          year: '%b %Y'
 	      },
 	      title: {
-	        text: '',
-	        margin: 0
+	        text: 'Date'
 	      },
-	      xAxis: {
-	        type: 'datetime',
-	        dateTimeLabelFormats: { // don't display the dummy year
-	            month: '%e %b %Y',
-	            year: '%b %Y'
-	        },
-	        title: {
-	            text: 'Date'
-	        },
-	        plotLines: [{
-	          color: 'red', // Color value
-	         // dashStyle: 'longdashdot', // Style of the plot line. Default to solid
-	          value: currentdate,
-	          id: 'currentdate',
-	          zIndex: 20,
-	          width: 2 // Width of the line    
+	      plotLines: [{
+	        color: 'red', // Color value
+	        // dashStyle: 'longdashdot', // Style of the plot line. Default to solid
+	        value: currentdate,
+	        id: 'currentdate',
+	        zIndex: 20,
+	        width: 2 // Width of the line    
 	        }]
 	      },
 	      yAxis: yAxis,
@@ -334,13 +391,13 @@ export default {
 	        },
 	        series: {
 	          point: {
-                events: {
-                  click: function () {
-                    var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', this.x)})
-       	 	         document.dispatchEvent(evt)
-                  }
-                }
-              }
+	               events: {
+	                 click: function () {
+	                   var evt = new CustomEvent('dateChangeEvent', {detail: Highcharts.dateFormat('%Y-%m-%d', this.x)})
+	      	 	         document.dispatchEvent(evt)
+	                 }
+	               }
+	             }
 	        }
 	      },
 	      series: [{
@@ -348,7 +405,7 @@ export default {
 	        data: data,
 	        color: 'black'
 	      }]
-      })
+        })
 	  },
 	  placeLine (evt) {
 		  // this.chart.xAxis[0].removePlotLine(this.currentdate)
@@ -377,25 +434,7 @@ export default {
 	      }
 		  this.$el.querySelector('.chart').innerHTML = this.waiting
 		},
-		setImageUrl (evt) {
-	  return;
-// 	  this.imageUrl = evt.detail
-// 	  this.pattern = {
-// 	      colorscale: 'jet',
-// 	      displayMin: -20,
-// 	      displayMax: 100
-// 	  }
-// 	  this._canvas = document.createElement('canvas')
-//     this._canvas.width = 256
-//     this._canvas.height = 1
-//     plotty.renderColorScaleToCanvas(this.pattern.colorscale, this._canvas)
-// 	  console.log(this._canvas.toDataURL())
-// 	  this._colorImage = this._canvas.toDataURL()
-	
-	},
-
 		yAxis () {
-		  console.log(this.pattern)
 		  return {
 	        title: {
 	          text: ''
@@ -409,6 +448,8 @@ export default {
 	      }
 		},
 		init () {
+		  // initialise
+		  this.$el.style.width = this.graphwidth + 'px'
 		  this.waiting = this.$el.querySelector('.chart').innerHTML
 		  if(this.lang === "fr"){
 	        Highcharts.setOptions({
@@ -427,18 +468,6 @@ export default {
 	          }
 	        });
 		  }
-		  console.log(this.portrayal)
-		  // this.pattern = JSON.parse(this.portrayal)
-		 
-// 		  if (!this.canvas) {
-// 		    this.canvas = document.createElement('canvas')
-// 	        this.canvas.width = 1
-// 	        this.canvas.height = 256
-// 	        this.canvas.style.width = '256px'
-// 	        this.canvas.style.height = '256px'
-// 	        document.body.append(this.canvas)
-	        
-// 		  }
 		  if (this.portrayal) {
 		    this.changePattern(this.portrayal)
 		  }
@@ -487,7 +516,6 @@ export default {
    // document.addEventListener('colorscaleImageEvent', this.colorscaleImageListener)
   },
   mounted: function(){
-    console.log('mounte formater-graph')
     this.init()
   },
   destroyed () {

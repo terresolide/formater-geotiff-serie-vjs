@@ -22,8 +22,8 @@
    <span class="formater-map">  
    
       <!--  <formater-draggable-block ref="graph" id="graph" :title="$t('graphtitle')">-->
-      	  <formater-graph id="graph" ref="graph" uom='cm'  :lang="lang" :portrayal="portrayalStr()"  :title="$t('graphtitle')"></formater-graph>
-      </formater-draggable-block> 
+      <formater-graph  uom='cm'  :lang="lang" :portrayal="portrayalStr()"  :title="$t('graphtitle')" :graphwidth="graphwidth"></formater-graph>
+      <!--  </formater-draggable-block> -->
     <div :id="id"></div>
  
     <div class="geotiff-control">
@@ -66,7 +66,7 @@ export default {
       },
       metadataurl: {
           type: String,
-          default: 'http://api.formater/geotiff/mexico/info.json'
+          default: null
       }
   },
   data () {
@@ -82,12 +82,13 @@ export default {
               selectedMarker: null,
               api: null,
               // define the color legend
-              portrayal: {
-                colorscale: 'viridis',
-                displayMin: -10,
-                displayMax: 100
-              },
-              graphWidth: 350,
+              portrayal: null,
+//               {
+//                 colorscale: 'viridis',
+//                 displayMin: -10,
+//                 displayMax: 100
+//               },
+              graphwidth: 350,
               // L.GroupLayers of markers
               graphMarkers: null,
               //listeners
@@ -105,7 +106,6 @@ export default {
     this.initMap()
     this.getInfoSerie()
     this.initPortrayal(this.portrayal)
-    //this.portrayalStr = JSON.stringify(this.portrayal)
     this.searchProfileListener = this.getProfile.bind(this)
     document.addEventListener('searchProfileEvent', this.searchProfileListener)
     this.modeChangeListener = this.modeChange.bind(this)
@@ -120,8 +120,6 @@ export default {
   },
   watch: {
     portrayal (newvalue) {
-      //this.portrayalStr = JSON.stringify(newvalue)
-      console.log('portrayal change colorscale=' + newvalue.colorscale)
       this.initPortrayal(newvalue)
     }
   },
@@ -130,16 +128,24 @@ export default {
   },
   methods: {
     portrayalStr () {
-      console.log('pattern change')
-      console.log(JSON.stringify(this.portrayal))
-      return JSON.stringify(this.portrayal)
+      if (!this.portrayal) {
+        return ''
+      } else {
+        return JSON.stringify(this.portrayal)
+      }
     },
     initPortrayal (newvalue) {
-      if (!this.colorscale) {
-        this.colorscale = new L.Control.ColorscaleControl(newvalue)
-        this.colorscale.addTo(this.map)
+      if(newvalue){
+	      if (!this.colorscale) {
+	        this.colorscale = new L.Control.ColorscaleControl(newvalue)
+	        this.colorscale.addTo(this.map)
+	      } else {
+	        this.colorscale.setPortrayal(newvalue)
+	      }
       } else {
-        this.colorscale.setPortrayal(newvalue)
+        if (this.colorscale) {
+          this.colorscale.remove()
+        }
       }
     },
     initMap () {
@@ -179,10 +185,10 @@ export default {
      var parentPos = this.$el.parentNode.parentNode.getBoundingClientRect()
      var geotiffControlPos = this.$el.querySelector('.geotiff-control').getBoundingClientRect()
      this.$el.querySelector('#' + this.id).style.height = (parentPos.height - geotiffControlPos.height) + 'px'
-     this.graphWidth = this.$el.parentNode.offsetWidth * 0.5
-     this.$refs.graph.querySelector('.formater-draggable-block').style.width = this.graphWidth + 'px'
+     this.graphwidth = Math.round(parentPos.width * 0.5)
      if (this.map) {
        this.map.invalidateSize()
+       
      }
      
     },
@@ -205,7 +211,7 @@ export default {
            [resp.body.bbox.south, resp.body.bbox.east])
        this.images = resp.body
        // this.portrayalChange(resp.body.portrayal)
-       this.portrayal = resp.body.portrayal || this.portrayal
+       this.portrayal = resp.body.portrayal || null
        this.api = resp.body.api || null
        var reset = new L.Control.ResetControl(this.bounds)
        this.map.addControl(reset)
@@ -220,25 +226,14 @@ export default {
        if (this.api || resp.body.example) {
 	       this.mode = new L.Control.ModeControl(this.lang)
 	       this.mode.addTo(this.map)
-       }
-       
+       }    
        this.resize()
        //fitBounds after adding geotiffSerie else chrome do not zoom properly
        this.map.fitBounds(this.bounds)
        // this.$refs.geotiffControl.querySelector("#geotiffEye").dispatchEvent(event)
          
     },
-//     portrayalChange (portrayal) {
-       
-//        this.portrayal.colorscale = portrayal.colorscale
-//        if (!this.colorscale) {
-//          this.colorscale = new L.Control.ColorscaleControl(this.portrayal)
-//          this.colorscale.addTo(this.map)
-//        } else {
-//          this.colorscale.setPortrayal(portrayal)
-//        }
-//        this.$forceUpdate()
-//     },
+
     handleError (response) {
       console.log(response)
     },
@@ -260,7 +255,7 @@ export default {
         this.fullscreenNode.style.pointerEvents = 'auto'
       }
       this.isFullscreen = !this.isFullscreen
-      this.map.invalidateSize()
+      this.resize()
     },
     modeChange (evt) {
      
