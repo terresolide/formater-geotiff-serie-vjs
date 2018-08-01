@@ -113,7 +113,7 @@ export default {
     graphwidth (newval) {
       this.$el.style.width = newval + 'px'
       if (this.chart) {
-        this.chart.setSize(newval, null)
+        this.chart.setSize(newval - 15, null)
       }
     } 
    },
@@ -432,6 +432,7 @@ export default {
 	    		  Highcharts.charts[0].destroy();
 	    		  Highcharts.charts.splice(0, 1);
 	    		  }
+	    	  this.chart = null
 	        // this.chart.destroy()
 	      }
 		  this.$el.querySelector('.chart').innerHTML = this.waiting
