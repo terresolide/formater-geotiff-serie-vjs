@@ -35,6 +35,7 @@
 <script>
 /**
  * Component build with the metadata of a geotiff serie 
+ * The height is equal to parent height
  *
  * @prop {String} id
  * @prop {String} lang 'en' or 'fr' only
@@ -227,7 +228,6 @@ export default {
        // this.$refs.geotiffControl.querySelector("#geotiffEye").dispatchEvent(event)
          
     },
-
     handleError (response) {
       console.log(response)
     },
