@@ -76,10 +76,7 @@ if (process.env.NODE_ENV === 'production') {
     new CleanWebpackPlugin(pathsToClean),
    // new webpack.optimize.UglifyJsPlugin({
 	new UglifyJsPlugin({
-      sourceMap: true,
-    //  compress: {
-    //    warnings: false
-    //  }
+      sourceMap: true
     }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
@@ -103,12 +100,8 @@ if (process.env.NODE_ENV === 'preproduction') {
         }
       }),
       new CleanWebpackPlugin(["webcomponents/*.*"]),
-     // new webpack.optimize.UglifyJsPlugin({
-  	new UglifyJsPlugin({
-        sourceMap: true,
-//        compress: {
-//          warnings: false
-//        }
+      new UglifyJsPlugin({
+        sourceMap: true
       }),
       new webpack.LoaderOptionsPlugin({
         minimize: true
