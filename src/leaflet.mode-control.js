@@ -121,12 +121,13 @@ L.Control.ModeControl = L.Control.extend({
       this.setColor( this._color);
     }
   },
-  _toggle: function () {
+  _toggle: function (evt) {
     if( this._container.className.indexOf('leaflet-control-expanded')>=0){
       this._collapse();
     }else{
       this._expand();
     }
+    L.DomEvent.preventDefault(evt)
   },
   _modeChange: function (evt){
     var value = this._form.querySelector('input[name="formater-mode"]:checked').value
