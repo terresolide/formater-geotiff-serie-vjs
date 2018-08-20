@@ -19,7 +19,8 @@
 </i18n>
 
 <template>
-   <span class="formater-map">  
+   <div class="formater-map">  
+    <formater-attribution :lang="lang" name="Component" url="https://github.com/terresolide/formater-geotiff-serie-vjs" v-if="attribution"></formater-attribution>
    
       <!--  <formater-draggable-block ref="graph" id="graph" :title="$t('graphtitle')">-->
       <formater-graph  uom='cm'  :lang="lang" :portrayal="portrayalStr()"  :title="$t('graphtitle')" :graphwidth="graphwidth"></formater-graph>
@@ -29,7 +30,7 @@
     <div class="geotiff-control">
      <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" fullscreenbutton="true" @fullscreen="handleFullscreen" @resize="resize"></geotiff-serie-control>
     </div>
-    </span>
+    </div>
 </template>
 
 <script>
@@ -57,11 +58,15 @@ export default {
       },
       lang: {
           type: String,
-          default: 'fr'
+          default: 'en'
       },
       metadataurl: {
           type: String,
           default: null
+      },
+      attribution: {
+    	  type: Boolean,
+    	  default: true
       }
   },
   data () {

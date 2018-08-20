@@ -20,7 +20,7 @@ import Map from './formater-map.vue'
 import GeotiffSerieControl from './geotiff-serie-control.vue'
 
 // import FormaterDraggableBlock from './formater-draggable-block.vue';
-
+import FormaterAttribution from './formater-attribution.vue'
 import FormaterGraph from './formater-graph.vue'
 // Add aeris-theme from other local repository!
 import AerisTheme from '../../aeris-commons-components-vjs/src/aeris-theme/aeris-theme.vue'
@@ -49,6 +49,7 @@ ljs.addAliases({
       ]
 })
 ljs.load('dep', function() {
+  Vue.customElement('formater-attribution', FormaterAttribution)
   Vue.customElement('formater-graph', FormaterGraph)
   Vue.customElement('aeris-theme', AerisTheme)
   Vue.customElement('geotiff-serie-control', GeotiffSerieControl)

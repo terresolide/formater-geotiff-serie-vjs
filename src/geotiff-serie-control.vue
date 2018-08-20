@@ -4,14 +4,28 @@ ORIGINAL - LA COPIE EST DANS formater-catalogue-component-vjs-->
 <i18n>
 {
   "en":{
-    "wyn":  "What is my name ?",
-    "nobody" :  "Nobody",
-    "mynameis":  "My name is"
+    "show_file":  "Show picture",
+    "hide_file": "Hide picture",
+    "reset" :  "Reset",
+    "fullscreen":  "Fullscreen",
+    "reduce": "Reduce",
+    "previous": "Previous",
+    "pause": "Pause",
+    "start": "Start",
+    "next": "Next",
+    "download": "Download geotiff"
    },
    "fr":{
-    "wyn":  "Quel est mon nom ?",
-    "nobody" :  "Personne",
-    "mynameis":  "Mon nom est"
+    "show_file":  "Afficher l'image",
+    "hide_file": "Cacher l'image",
+    "reset" :  "Initialiser",
+    "fullscreen":  "Plein écran",
+    "reduce": "Réduire",
+    "previous": "Précédent",
+    "pause": "Pause",
+    "start": "Commencer",
+    "next": "Suivant",
+    "download": "Télécharger le geotiff"
    }
 }
 </i18n>
@@ -22,23 +36,23 @@ ORIGINAL - LA COPIE EST DANS formater-catalogue-component-vjs-->
   <div>
     <progress  v-show="selected!=null" :min="keys[0]" :max="keys[last]" :value="keys[selected]" @mousemove="dateFromPosition" @mouseout="hideTooltip" @click="selectFromProgress">truc</progress>
     <div v-show="!isMinScreen" class="geotiff-eye">
-      <a @click="view()" class="geotiff-nav geotiff-play"  ><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
-      <a  v-if="resetbutton" v-show="selected!=null" @click="reset()" class="geotiff-nav geotiff-play"  ><i class="fa fa-undo"></i></a>
-      <a  v-if="fullscreenbutton" v-show="selected!=null" @click="fullscreen()" class="geotiff-nav geotiff-play"  ><i class="fa" :class="isFullscreen ? 'fa-minus-square-o' : 'fa-expand'"></i></a>
+      <a @click="view()" :title="hidden ? $t('show_file') : $t('hide_file')" class="geotiff-nav geotiff-play"  ><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
+      <a  v-if="resetbutton" :title="$t('reset')" v-show="selected!=null" @click="reset()" class="geotiff-nav geotiff-play"  ><i class="fa fa-undo"></i></a>
+      <a  v-if="fullscreenbutton" :title="isFullscreen ? $t('reduce') : $t('fullscreen')" v-show="selected!=null" @click="fullscreen()" class="geotiff-nav geotiff-play"  ><i class="fa" :class="isFullscreen ? 'fa-minus-square-o' : 'fa-expand'"></i></a>
 	 </div>
 
     <div v-show="selected!=null" style="display:inline-block;min-width:300px;">
       <span class="geotiff-nav-content">
-       	<a @click="goTo(first)"  class="geotiff-nav" :class="(first!=null && selected!=first)?'':'unactive'" :title="index2strdate(first)"><i class="fa fa-angle-double-left"></i></a>
+       	<a @click="goTo(first)"   class="geotiff-nav" :class="(first!=null && selected!=first)?'':'unactive'" :title="index2strdate(first)"><i class="fa fa-angle-double-left"></i></a>
    	  </span>
    	  <span class="geotiff-nav-content">
-      	<a @click="previous()"  class="geotiff-nav simple" :class="selected===first?'unactive':''"><i class="fa fa-angle-left"></i></a>
+      	<a @click="previous()"  :title="$t('previous')" class="geotiff-nav simple" :class="selected===first?'unactive':''"><i class="fa fa-angle-left"></i></a>
       </span>
    	  <span class="geotiff-nav-content">
-   	    <a @click="toggleStartStop()" class="geotiff-nav geotiff-play" :class="(selected==last)?'unactive':''" ><i class="fa" :class="playing?'fa-pause':'fa-play'"></i></a>
+   	    <a @click="toggleStartStop()" :title="playing ? $t('pause') : $t('start')" class="geotiff-nav geotiff-play" :class="(selected==last)?'unactive':''" ><i class="fa" :class="playing?'fa-pause':'fa-play'"></i></a>
       </span>
       <span class="geotiff-nav-content">
-        <a @click="next()" class="geotiff-nav simple"  :class="selected==last?'unactive':''"><i class="fa fa-angle-right"></i></a>
+        <a @click="next()" :title="$t('next')" class="geotiff-nav simple"  :class="selected==last?'unactive':''"><i class="fa fa-angle-right"></i></a>
       </span>
       <span class="geotiff-nav-content">
         <a @click="goTo(last)"  class="geotiff-nav" :class="selected==last?'unactive':''" :title="index2strdate(last)"><i class="fa fa-angle-double-right"></i></a>
@@ -48,12 +62,12 @@ ORIGINAL - LA COPIE EST DANS formater-catalogue-component-vjs-->
  
     <div class="geotiff-eye" :class="isMinScreen?'little-control':''" >
       <span v-show="isMinScreen">
-        <a @click="view()"  class="geotiff-nav geotiff-play"><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
-        <a  v-if="resetbutton" v-show="selected!=null" @click="reset()" class="geotiff-nav geotiff-play"  ><i class="fa fa-undo"></i></a>
-	    <a  v-if="fullscreenbutton" v-show="selected!=null" @click="fullscreen()" class="geotiff-nav geotiff-play"  ><i class="fa" :class="isFullscreen ? 'fa-minus-square-o' : 'fa-expand'"></i></a>
+        <a @click="view()"  class="geotiff-nav geotiff-play" :title="hidden ? $t('show_file') : $t('hide_file')"><i class="fa" :class="hidden?'fa-eye-slash':'fa-eye'"></i></a>
+        <a  v-if="resetbutton" v-show="selected!=null" @click="reset()" class="geotiff-nav geotiff-play" :title="$t('reset')" ><i class="fa fa-undo"></i></a>
+	    <a  v-if="fullscreenbutton" v-show="selected!=null" @click="fullscreen()" class="geotiff-nav geotiff-play" :title="isFullscreen ? $t('reduce') : $t('fullscreen')" ><i class="fa" :class="isFullscreen ? 'fa-minus-square-o' : 'fa-expand'"></i></a>
 	  </span>
 	  <div  class="geotiff-file" v-for="(item, key) in list" :data-image="item.png" v-show="keys[selected]==key" >
-	    <a :href="item.tiff" title="Download Geotiff" download class="fa fa-download"> {{ date2str(item.date) }}</a>
+	    <a :href="item.tiff" :title="$t('download')" download class="fa fa-download"> {{ date2str(item.date) }}</a>
 	  </div>
     </div>
    </div>
@@ -194,8 +208,10 @@ export default {
   resize () {
     if (this.$el.offsetWidth < 720) {
       this.isMinScreen = true
+      this.$el.querySelector('div:first-child').style.minHeight = '90px'
     }else{
       this.isMinScreen = false
+      this.$el.querySelector('div:first-child').style.minHeight = '60px'
     }
     this.$emit('resize')
   },
@@ -408,6 +424,7 @@ export default {
 .geotiff-serie-control > div{
   text-align:center;
   width:100%; 
+  min-height:60px;
   background: rgba(0, 0, 0, 0.8);
 }
 .geotiff-date-tooltip{
