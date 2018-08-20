@@ -12,9 +12,9 @@
 </i18n>
 <template>
 <span class="formater-attribution">
-<a :href="url" v-if="url">{{name}}</a>
+<a :href="url" v-if="url" target="_blank">{{name}}</a>
 <span v-else>{{name}}</span> 
- {{$t('developed_by')}} <a :href="$t('formater_uri')">ForM@Ter</a>
+ {{$t('developed_by')}} <a :href="$t('formater_uri')" target="_blank">ForM@Ter</a>
 </span>
 </template>
 <script>

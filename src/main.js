@@ -12,7 +12,7 @@ Vue.use(VueI18n);
 import VueResource from 'vue-resource'
 Vue.use(VueResource);
 
-import Map from './formater-map.vue'
+import GeotiffSerie from './formater-geotiff-serie.vue'
 // import Test from './formater-test.vue';
 
 //@todo factoriser -  Il s'agit du même composant (une copie) que dans formater-catalogue-component-vjs 
@@ -54,7 +54,7 @@ ljs.load('dep', function() {
   Vue.customElement('aeris-theme', AerisTheme)
   Vue.customElement('geotiff-serie-control', GeotiffSerieControl)
   // Vue.customElement('formater-draggable-block', FormaterDraggableBlock)
-  Vue.customElement('formater-map', Map)
+  Vue.customElement('formater-geotiff-serie', GeotiffSerie)
   // Vue.customElement('formater-test', Test);
 })
 
