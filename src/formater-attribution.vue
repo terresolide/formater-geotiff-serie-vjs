@@ -39,6 +39,10 @@ export default {
     color: {
     	type: String,
     	default: '#00000'
+    },
+    position: {
+      type: String,
+      default: 'BR'
     }
   },
   created () {
@@ -53,14 +57,32 @@ export default {
 			  node.style.color = _this.linkcolor
 		  })
 	  }
+	  switch (this.position) {
+	  case 'BR':
+	    this.$el.style.bottom = '2px'
+	    this.$el.style.right = '5px'
+	    break;
+	  case 'BL':
+	    this.$el.style.bottom = '2px'
+		this.$el.style.left = '5px'
+	    break;
+	  case 'TR':
+	    this.$el.style.top = '2px'
+		this.$el.style.right = '5px'
+	    break;
+	  case 'TL':
+	    this.$el.style.top = '2px'
+	    this.$el.style.left = '5px'
+	    break;
+	  }
   }
 }
 </script>
 <style>
 .formater-attribution{
 	position:absolute;
-	bottom:2px;
-	right:5px;
+	/*bottom:2px;
+	right:5px;*/
 	z-index:2000;
 	min-width:150px;
 	color:white;

@@ -53,7 +53,8 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: true,
-    noInfo: true
+    noInfo: true,
+    headers: { 'Access-Control-Allow-Origin': '*' }
   },
   performance: {
     hints: false

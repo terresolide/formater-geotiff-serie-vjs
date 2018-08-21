@@ -9,18 +9,20 @@
 {
    "en":{
        "graphtitle": "Temporal profile",
-       "waitprocessend": "Wait for the end of the process to start a new search"
+       "waitprocessend": "Wait for the end of the process to start a new search",
+       "component": "Component"
    },
    "fr":{
        "graphtitle":  "Profil temporel",
-       "waitprocessend": "Attendre la fin du processus pour lancer une nouvelle recherche"
+       "waitprocessend": "Attendre la fin du processus pour lancer une nouvelle recherche",
+       "component": "Composant"
    }
 }
 </i18n>
 
 <template>
    <div class="formater-map">  
-    <formater-attribution :lang="lang" name="Component" url="https://github.com/terresolide/formater-geotiff-serie-vjs" v-if="attribution"></formater-attribution>
+    <formater-attribution :lang="lang" :name="$t('component')" url="https://github.com/terresolide/formater-geotiff-serie-vjs" v-if="attribution"></formater-attribution>
    
       <!--  <formater-draggable-block ref="graph" id="graph" :title="$t('graphtitle')">-->
       <formater-graph  uom='cm'  :lang="lang" :portrayal="portrayalStr()"  :title="$t('graphtitle')" :graphwidth="graphwidth"></formater-graph>
@@ -98,10 +100,10 @@ export default {
         }
   },
   created () {
-    // this.$i18n.locale = this.lang
+    this.$i18n.locale = this.lang
   },
   mounted () {
-    this.$i18n.locale = this.lang
+    // this.$i18n.locale = this.lang
     this.initFullscreen()
     this.initMap()
     this.getInfoSerie()
@@ -213,7 +215,7 @@ export default {
        // this.portrayalChange(resp.body.portrayal)
        this.portrayal = resp.body.portrayal || null
        this.api = resp.body.api || null
-       var reset = new L.Control.ResetControl(this.bounds)
+       var reset = new L.Control.ResetControl(this.bounds, this.lang)
        this.map.addControl(reset)
       
      
@@ -424,5 +426,12 @@ html,body{
 }
 .leaflet-control.leaflet-mode.leaflet-control-expanded form{
   display:block;
+}
+.leaflet-control.leaflet-reset{
+  font-size: 24px;
+}
+.leaflet-control.leaflet-reset,
+.leaflet-control.leaflet-mode-toggle {
+  cursor: pointer;
 }
 </style>
