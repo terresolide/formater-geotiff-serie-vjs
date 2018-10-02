@@ -17,13 +17,13 @@ import GeotiffSerie from './formater-geotiff-serie.vue'
 
 //@todo factoriser -  Il s'agit du même composant (une copie) que dans formater-catalogue-component-vjs 
 // problème quand je charge l'originale dans un autre répertoire avec i18n???
-import GeotiffSerieControl from './geotiff-serie-control.vue'
+// import GeotiffSerieControl from './geotiff-serie-control.vue'
 
 // import FormaterDraggableBlock from './formater-draggable-block.vue';
-import FormaterAttribution from './formater-attribution.vue'
-import FormaterGraph from './formater-graph.vue'
+// import FormaterAttribution from './formater-attribution.vue'
+// import FormaterGraph from './formater-graph.vue'
 // Add aeris-theme from other local repository!
-import AerisTheme from '../../aeris-commons-components-vjs/src/aeris-theme/aeris-theme.vue'
+import AerisTheme from 'aeris-commons-components-vjs/src/aeris-theme/aeris-theme.vue'
 
 
 ljs.addAliases({
@@ -49,10 +49,10 @@ ljs.addAliases({
       ]
 })
 ljs.load('dep', function() {
-  Vue.customElement('formater-attribution', FormaterAttribution)
-  Vue.customElement('formater-graph', FormaterGraph)
+ // Vue.customElement('formater-attribution', FormaterAttribution)
+ // Vue.customElement('formater-graph', FormaterGraph)
   Vue.customElement('aeris-theme', AerisTheme)
-  Vue.customElement('geotiff-serie-control', GeotiffSerieControl)
+//  Vue.customElement('geotiff-serie-control', GeotiffSerieControl)
   // Vue.customElement('formater-draggable-block', FormaterDraggableBlock)
   Vue.customElement('formater-geotiff-serie', GeotiffSerie)
   // Vue.customElement('formater-test', Test);

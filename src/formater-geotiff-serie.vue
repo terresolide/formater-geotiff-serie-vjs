@@ -30,7 +30,7 @@
     <div :id="id"></div>
  
     <div class="geotiff-control">
-     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" showatstart="true" fullscreenbutton="true" @fullscreen="handleFullscreen" @resize="resize"></geotiff-serie-control>
+     <geotiff-serie-control ref="geotiffControl" :images="JSON.stringify(images)" :lang="lang" :showatstart="true" :fullscreenbutton="true" @fullscreen="handleFullscreen" @resize="resize"></geotiff-serie-control>
     </div>
     </div>
 </template>
@@ -50,9 +50,17 @@
  * @fires   document:openBlockEvent
  */
 var L = require("./leaflet.extend.js")
+import FormaterAttribution from './formater-attribution.vue'
+import FormaterGraph from './formater-graph.vue'
+import GeotiffSerieControl from './geotiff-serie-control.vue'
 
 
 export default {
+   components: {
+     FormaterAttribution,
+     FormaterGraph,
+     GeotiffSerieControl
+   },
   props:{
       id: {
           type: String,
