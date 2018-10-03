@@ -36,14 +36,21 @@ module.exports = {
         loader: 'babel-loader',
         exclude: /node_modules/
       },
-     
       {
-        test: /\.(png|jpg|gif|svg)$/,
-        loader: 'file-loader',
+        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        loader: 'url-loader',
         options: {
-          name: '[name].[ext]?[hash]'
+          limit: 10000,
+          name: 'assets/img/[name].[hash:7].[ext]'
         }
       }
+//      {
+//        test: /\.(png|jpg|gif|svg)$/,
+//        loader: 'file-loader',
+//        options: {
+//          name: '[name].[ext]?[hash]'
+//        }
+//      }
     ]
   },
   resolve: {
