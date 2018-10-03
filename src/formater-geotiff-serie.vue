@@ -50,7 +50,7 @@
  * @fires   document:openBlockEvent
  */
 var L = require("./leaflet.extend.js")
-import FormaterAttribution from './formater-attribution.vue'
+import {FormaterAttribution} from 'formater-commons-components-vjs'
 import FormaterGraph from './formater-graph.vue'
 import GeotiffSerieControl from './geotiff-serie-control.vue'
 
