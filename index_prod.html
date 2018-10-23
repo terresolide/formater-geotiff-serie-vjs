@@ -5,15 +5,15 @@
     <title>Vue Example</title>
   </head>
   <body> 
-  <h1>Test component tag 0.0.1</h1>
-   <div>Here used the javascript file builded with the command : <code>npm run build</code><br />
-  then push to github repository in branch master and tag 0.0.1</div>
-	<formater-skeleton lang="en"></formater-skeleton>
-	<formater-skeleton name="Elisabeth"></formater-skeleton>
-
+  <h1>Test component in dist directory</h1>
+  	<div style="width:80%;margin:auto;height:600px;">
+	<aeris-theme active="true" primary="#dd9946" emphasis="blue"></aeris-theme>
+	<formater-geotiff-serie id="test" metadataurl="https://api.poleterresolide.fr/geotiff/mexico/info_ft4.json" attribution="true" lang="fr"></formater-geotiff-serie>
+		 
+	 </div>
  <!-- The file is generated when we launch in console: npm run build
          then push on github branch master and tag to version 0.0.1
      Modify the url according to your own configuration -->
-	<script  src="https://cdn.rawgit.com/terresolide/formater-skeleton-vjs/0.0.1/dist/formater-skeleton-vjs_0.0.1.js"/></script>
+	<script  src="/dist/formater-geotiff-serie-vjs.js"/></script>
   </body>
 </html>
