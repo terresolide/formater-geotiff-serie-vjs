@@ -45,7 +45,7 @@
     "css-loader": "^0.25.0",
     "exports-loader": "^0.6.4",
     "file-loader": "^0.9.0",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-install": "^1.1.0",
     "gulp-less": "^3.4.0",
     "style-loader": "^0.18.2",
